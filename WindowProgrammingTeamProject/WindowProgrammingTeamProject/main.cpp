@@ -27,6 +27,7 @@ struct Player {
     int x, y;
     int dx, dy;
     int jumpSpeed;
+    bool isCharging;
 } g_player;
 
 struct Item {
@@ -80,14 +81,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 void ProcessKeyboardDown(WPARAM wParam) {
     switch (wParam) {
     case VK_LEFT:
+        if (g_player.isCharging)break;
         g_player.dx = -1;
         break;
     case VK_RIGHT:
+        if (g_player.isCharging)break;
         g_player.dx = 1;
         break;
     case VK_SPACE:
         if (g_player.dy == 0 && g_player.jumpSpeed > -25) { // 바닥에 닿아 있을 때만 점프 가능
-            g_player.jumpSpeed -= 1;
+            g_player.isCharging = true;
+            g_player.dx = 0;
+            g_player.jumpSpeed -= 5;
         }        
         break;
     }
@@ -102,6 +107,7 @@ void ProcessKeyboardUp(WPARAM wParam) {
     case VK_SPACE:
         g_player.dy = g_player.jumpSpeed;
         g_player.jumpSpeed = 0;
+        g_player.isCharging = false;
         break;
     }
 }
@@ -124,8 +130,9 @@ void InitMap() {
             }
         }
     }
-    for (int y = 0; y < MAP_HEIGHT / 2; y++) {
+    for (int y = 1; y < MAP_HEIGHT / 2; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
+            if (x == 0 || x == MAP_WIDTH - 1) { continue; }
             map[y][x] = 1;
         }
     }
@@ -160,6 +167,7 @@ void InitPlayer() {
     g_player.dx = 0;
     g_player.dy = 0;
     g_player.jumpSpeed = 0;
+    g_player.isCharging = false;
 }
 
 void ApplyGravity() {
@@ -308,7 +316,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         DrawPlayer(mDC);
 
         // 메모리 DC에서 화면 DC로 그림을 복사
-        BitBlt(hDC, 0, 0, BOARD_WIDTH, BOARD_HEIGHT, mDC, 0, 0, SRCCOPY);
+        // #1 맵 전체를 그리기
+        // BitBlt(hDC, 0, 0, BOARD_WIDTH, BOARD_HEIGHT, mDC, 0, 0, SRCCOPY);
+        // #2 플레이어 주변의 300x300 픽셀 영역을 윈도우 전체로 확대
+        int stretchWidth = rt.right;
+        int stretchHeight = rt.bottom;
+        int sourceX = g_player.x - 150;
+        int sourceY = g_player.y - 150;
+        int sourceWidth = 300;
+        int sourceHeight = 300;
+
+        StretchBlt(hDC, 0, 0, stretchWidth, stretchHeight, mDC, sourceX, sourceY, sourceWidth, sourceHeight, SRCCOPY);
+        
         DeleteDC(mDC);
         DeleteObject(hBitmap);
         EndPaint(hWnd, &ps);
