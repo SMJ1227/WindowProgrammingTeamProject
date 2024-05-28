@@ -3,16 +3,50 @@
 #include <time.h>
 #include <math.h>
 
-const int BOARD_WIDTH = 800;
-const int BOARD_HEIGHT = 600;
+const int WINDOW_WIDTH = 600;
+const int WINDOW_HEIGHT = 600;
 const int GRID = 40;
-const int MAP_WIDTH = BOARD_WIDTH / GRID;
-const int MAP_HEIGHT = BOARD_HEIGHT / GRID;
+const int MAP_WIDTH = 13;
+const int MAP_HEIGHT = 33;
+const int BOARD_WIDTH = MAP_WIDTH * GRID;
+const int BOARD_HEIGHT = MAP_HEIGHT * GRID;
 const int PLAYER_SIZE = 20;
 const double M_PI = 3.141592;
 const int GRAVITY = 1; // 중력 상수
+int map[MAP_HEIGHT][MAP_WIDTH] = {
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0},
+    {0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0},
+    {0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0},
+    {0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0},
+    {0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0},
+    {0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+};
 
-int map[MAP_HEIGHT][MAP_WIDTH];
 
 using namespace std;
 
@@ -64,7 +98,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     WndClass.hIconSm = LoadIcon(NULL, IDI_QUESTION);
     RegisterClassEx(&WndClass);
 
-    hWnd = CreateWindow(lpszClass, lpszWindowName, WS_OVERLAPPEDWINDOW, 0, 0, BOARD_WIDTH + 16, BOARD_HEIGHT + 59, NULL, (HMENU)NULL, hInstance, NULL);
+    hWnd = CreateWindow(lpszClass, lpszWindowName, WS_OVERLAPPEDWINDOW, 0, 0, WINDOW_WIDTH + 16, WINDOW_HEIGHT + 59, NULL, (HMENU)NULL, hInstance, NULL);
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
 
@@ -162,8 +196,8 @@ void DrawMap(HDC hdc) {
 
 // 플레이어
 void InitPlayer() {
-    g_player.x = BOARD_WIDTH / 2 - 20;
-    g_player.y = BOARD_HEIGHT / 2;
+    g_player.x = (MAP_WIDTH - 3) * GRID;
+    g_player.y = (MAP_HEIGHT - 4) * GRID;
     g_player.dx = 0;
     g_player.dy = 0;
     g_player.jumpSpeed = 0;
@@ -279,7 +313,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
     switch (message) {
     case WM_CREATE:
-        InitMap();
+        //InitMap();
         InitPlayer();
         SetTimer(hWnd, 1, 1000 / 60, NULL);
         break;
@@ -308,7 +342,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     {
         GetClientRect(hWnd, &rt);
         mDC = CreateCompatibleDC(hDC);
-        hBitmap = CreateCompatibleBitmap(hDC, rt.right, rt.bottom);
+        hBitmap = CreateCompatibleBitmap(hDC, BOARD_WIDTH, BOARD_HEIGHT);
         SelectObject(mDC, (HBITMAP)hBitmap);
 
         //--- 모든 그리기를 메모리 DC에한다.
@@ -318,13 +352,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         // 메모리 DC에서 화면 DC로 그림을 복사
         // #1 맵 전체를 그리기
         // BitBlt(hDC, 0, 0, BOARD_WIDTH, BOARD_HEIGHT, mDC, 0, 0, SRCCOPY);
-        // #2 플레이어 주변의 300x300 픽셀 영역을 윈도우 전체로 확대
+
+        // #2 플레이어 주변의 영역을 윈도우 전체로 확대
         int stretchWidth = rt.right;
         int stretchHeight = rt.bottom;
-        int sourceX = g_player.x - 150;
-        int sourceY = g_player.y - 150;
-        int sourceWidth = 300;
-        int sourceHeight = 300;
+        int sourceX = g_player.x - 250;
+        int sourceY = g_player.y - 250;
+        int sourceWidth = 500;
+        int sourceHeight = 500;
 
         StretchBlt(hDC, 0, 0, stretchWidth, stretchHeight, mDC, sourceX, sourceY, sourceWidth, sourceHeight, SRCCOPY);
         
