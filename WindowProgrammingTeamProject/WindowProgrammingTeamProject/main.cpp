@@ -21,30 +21,30 @@ int map[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0},
-    {0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0},
+    {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0},
+    {0, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0},
-    {0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0},
-    {0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0},
-    {0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0},
-    {0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0},
+    {0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0},
+    {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 2, 1, 1, 1, 1, 0, 1, 1, 1, 0},
+    {0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
 
@@ -63,6 +63,7 @@ struct Player {
     int dx, dy;
     int jumpSpeed;
     bool isCharging;
+    bool isSlooping;
 } g_player;
 
 struct Item {
@@ -117,11 +118,13 @@ void ProcessKeyboardDown(WPARAM wParam) {
     switch (wParam) {
     case VK_LEFT:
         if (g_player.isCharging)break;
-        g_player.dx = -1;
+        if (g_player.isSlooping)break;
+        g_player.dx = -3;
         break;
     case VK_RIGHT:
         if (g_player.isCharging)break;
-        g_player.dx = 1;
+        if (g_player.isSlooping)break;
+        g_player.dx = 3;
         break;
     case VK_SPACE:
         if (g_player.dy == 0 && g_player.jumpSpeed > -20) { // 바닥에 닿아 있을 때만 점프 가능
@@ -137,6 +140,7 @@ void ProcessKeyboardUp(WPARAM wParam) {
     switch (wParam) {
     case VK_LEFT:
     case VK_RIGHT:
+        if (g_player.isSlooping)break;
         g_player.dx = 0;
         break;
     case VK_SPACE:
@@ -191,6 +195,21 @@ void DrawMap(HDC hdc) {
                 Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
                 DeleteObject(hBrush);
             }
+            else if (map[y][x] == 2) {  // 오른쪽 아래로 흘러내리는 빗면
+                // 검은색
+                POINT point[3];
+                point[0].x = x * GRID;
+                point[0].y = y * GRID;
+                point[1].x = x * GRID;
+                point[1].y = (y+1) * GRID;
+                point[2].x = (x+1) * GRID;
+                point[2].y = (y+1) * GRID;
+                HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
+                SelectObject(hdc, hBrush);
+                Polygon(hdc, point, 3);
+                //Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
+                DeleteObject(hBrush);
+            }
         }
     }
 }
@@ -206,7 +225,9 @@ void InitPlayer() {
 }
 
 void ApplyGravity() {
-    g_player.dy += GRAVITY; // 중력 적용
+    if (g_player.dy < 20) {
+        g_player.dy += GRAVITY; // 중력 적용
+    }
 }
 
 bool IsColliding(int x, int y) {
@@ -229,13 +250,32 @@ bool IsColliding(int x, int y) {
     return false;
 }
 
+bool IsSlopeColliding(int x, int y) {
+    int leftX = (x - PLAYER_SIZE / 2) / GRID;
+    int rightX = (x + PLAYER_SIZE / 2 - 1) / GRID;
+    int topY = (y - PLAYER_SIZE / 2) / GRID;
+    int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
+
+    // 맵 경계를 벗어나지 않도록 체크
+    if (leftX < 0 || rightX >= MAP_WIDTH || topY < 0 || bottomY >= MAP_HEIGHT) {
+        return true;
+    }
+
+    // 충돌 감지
+    if (map[bottomY][leftX] == 2 || map[bottomY][rightX] == 2) {
+        return true;
+    }
+
+    return false;
+}
+
 void MovePlayer() {
-    int newX = g_player.x + g_player.dx * 3;
+    int newX = g_player.x + g_player.dx;
     int newY = g_player.y + g_player.dy;
 
     bool isVerticalCollision = IsColliding(g_player.x, newY);
     bool isHorizontalCollision = IsColliding(newX, g_player.y);
-
+    
     // 수직 충돌 처리
     if (!isVerticalCollision) {
         g_player.y = newY;
@@ -256,6 +296,17 @@ void MovePlayer() {
     }
     else {
         g_player.dx = 0; // 충돌 후 x축 속도 초기화
+    }
+    bool isSlopeCollision = IsSlopeColliding(newX, newY);
+    if (isSlopeCollision) {
+        g_player.isSlooping = true;
+        
+        g_player.dy = 1; // 경사면 위에서 미끄러짐 속도
+        g_player.dx = 2; // 오른쪽 아래로 미끄러짐
+        newX = g_player.x + g_player.dx;
+        newY = g_player.y + g_player.dy;
+        g_player.x = newX;
+        g_player.y = newY;
     }
 }
 
