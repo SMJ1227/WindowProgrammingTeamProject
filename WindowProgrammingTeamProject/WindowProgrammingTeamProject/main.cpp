@@ -13,6 +13,7 @@ const int BOARD_HEIGHT = MAP_HEIGHT * GRID;
 const int PLAYER_SIZE = 20;
 const double M_PI = 3.141592;
 const int GRAVITY = 1; // 중력 상수
+
 int map[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
@@ -123,7 +124,7 @@ void ProcessKeyboardDown(WPARAM wParam) {
         g_player.dx = 1;
         break;
     case VK_SPACE:
-        if (g_player.dy == 0 && g_player.jumpSpeed > -25) { // 바닥에 닿아 있을 때만 점프 가능
+        if (g_player.dy == 0 && g_player.jumpSpeed > -20) { // 바닥에 닿아 있을 때만 점프 가능
             g_player.isCharging = true;
             g_player.dx = 0;
             g_player.jumpSpeed -= 5;
@@ -356,10 +357,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         // #2 플레이어 주변의 영역을 윈도우 전체로 확대
         int stretchWidth = rt.right;
         int stretchHeight = rt.bottom;
-        int sourceX = g_player.x - 250;
-        int sourceY = g_player.y - 250;
-        int sourceWidth = 500;
-        int sourceHeight = 500;
+        int sourceWidth = WINDOW_WIDTH;
+        int sourceHeight = WINDOW_HEIGHT;
+        int sourceX = g_player.x - WINDOW_WIDTH / 2;
+        if (sourceX <= 0) { sourceX = 0; }
+        if (g_player.x + WINDOW_WIDTH / 2 >= WINDOW_WIDTH) { sourceX = WINDOW_WIDTH - sourceWidth; }
+        int sourceY = g_player.y - WINDOW_HEIGHT / 2;
+        if (sourceY - sourceHeight >= 0) { sourceY = sourceHeight + GRID; }
+        if (sourceY <= 0) { sourceY = 0; }
+
 
         StretchBlt(hDC, 0, 0, stretchWidth, stretchHeight, mDC, sourceX, sourceY, sourceWidth, sourceHeight, SRCCOPY);
         
