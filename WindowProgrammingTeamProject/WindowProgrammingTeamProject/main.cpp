@@ -14,22 +14,23 @@ const int PLAYER_SIZE = 20;
 const double M_PI = 3.141592;
 const int GRAVITY = 1; // 중력 상수
 
-int map[MAP_HEIGHT][MAP_WIDTH] = {
+int map_num = 0;
+int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0},
-    {0, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 3, 0},
+    {0, 1, 1, 1, 2, 1, 1, 1, 1, 3, 1, 0},
     {0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 3, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 0},
     {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
@@ -42,9 +43,9 @@ int map[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 0, 2, 1, 1, 1, 1, 0, 1, 1, 1, 0},
-    {0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 2, 1, 1, 1, 1, 0, 1, 1, 3, 0},
+    {0, 0, 0, 2, 1, 1, 1, 1, 1, 3, 0, 0},
+    {0, 0, 0, 0, 2, 1, 1, 1, 3, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
 
@@ -151,51 +152,25 @@ void ProcessKeyboardUp(WPARAM wParam) {
     }
 }
 
-// 맵
-void InitMap() {
-    for (int y = 0; y < MAP_HEIGHT; y++) {
-        for (int x = 0; x < MAP_WIDTH; x++) {
-            map[y][x] = 0;
-        }
-    }
-    int centerX = MAP_WIDTH / 2 - 1;
-    int centerY = MAP_HEIGHT / 2;
-    for (int y = centerY - 4; y <= centerY + 4; ++y) {
-        for (int x = centerX - 4; x <= centerX + 4; ++x) {
-            if (abs(x - centerX) + abs(y - centerY) <= 4) {
-                if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT) {
-                    map[y][x] = 1;
-                }
-            }
-        }
-    }
-    for (int y = 1; y < MAP_HEIGHT / 2; y++) {
-        for (int x = 0; x < MAP_WIDTH; x++) {
-            if (x == 0 || x == MAP_WIDTH - 1) { continue; }
-            map[y][x] = 1;
-        }
-    }
-}
-
 void DrawMap(HDC hdc) {
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
             // 현재 맵의 값이 1이면 흰색(플레이어 영역), 0이면 검은색으로 그립니다.
-            if (map[y][x] == 0) {
+            if (map0[y][x] == 0) {
                 // 검은색
                 HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 0));
                 SelectObject(hdc, hBrush);
                 Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
                 DeleteObject(hBrush);
             }
-            else if (map[y][x] == 1) {
+            else if (map0[y][x] == 1) {
                 // 흰색
                 HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
                 SelectObject(hdc, hBrush);
                 Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
                 DeleteObject(hBrush);
             }
-            else if (map[y][x] == 2) {  // 오른쪽 아래로 흘러내리는 빗면
+            else if (map0[y][x] == 2) {  // 오른쪽 아래로 흘러내리는 빗면
                 // 검은색
                 POINT point[3];
                 point[0].x = x * GRID;
@@ -207,7 +182,20 @@ void DrawMap(HDC hdc) {
                 HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
                 SelectObject(hdc, hBrush);
                 Polygon(hdc, point, 3);
-                //Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
+                DeleteObject(hBrush);
+            }
+            else if (map0[y][x] == 3) {  // 왼쪽 아래로 흘러내리는 빗면
+                // 검은색
+                POINT point[3];
+                point[0].x = (x + 1) * GRID;
+                point[0].y = y * GRID;
+                point[1].x = x * GRID;
+                point[1].y = (y + 1) * GRID;
+                point[2].x = (x + 1) * GRID;
+                point[2].y = (y + 1) * GRID;
+                HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
+                SelectObject(hdc, hBrush);
+                Polygon(hdc, point, 3);
                 DeleteObject(hBrush);
             }
         }
@@ -216,7 +204,7 @@ void DrawMap(HDC hdc) {
 
 // 플레이어
 void InitPlayer() {
-    g_player.x = (MAP_WIDTH - 3) * GRID;
+    g_player.x = (MAP_WIDTH - 7) * GRID;
     g_player.y = (MAP_HEIGHT - 4) * GRID;
     g_player.dx = 0;
     g_player.dy = 0;
@@ -242,27 +230,36 @@ bool IsColliding(int x, int y) {
     }
 
     // 충돌 감지
-    if (map[topY][leftX] == 0 || map[topY][rightX] == 0 ||
-        map[bottomY][leftX] == 0 || map[bottomY][rightX] == 0) {
+    if (map0[topY][leftX] == 0 || map0[topY][rightX] == 0 ||
+        map0[bottomY][leftX] == 0 || map0[bottomY][rightX] == 0) {
         return true;
     }
 
     return false;
 }
 
-bool IsSlopeColliding(int x, int y) {
+bool IsSlopeGoRightColliding(int x, int y) {
     int leftX = (x - PLAYER_SIZE / 2) / GRID;
     int rightX = (x + PLAYER_SIZE / 2 - 1) / GRID;
     int topY = (y - PLAYER_SIZE / 2) / GRID;
     int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
 
-    // 맵 경계를 벗어나지 않도록 체크
-    if (leftX < 0 || rightX >= MAP_WIDTH || topY < 0 || bottomY >= MAP_HEIGHT) {
+    // 충돌 감지
+    if (map0[bottomY][leftX] == 2 || map0[bottomY][rightX] == 2) {
         return true;
     }
 
+    return false;
+}
+
+bool IsSlopeGoLeftColliding(int x, int y) {
+    int leftX = (x - PLAYER_SIZE / 2) / GRID;
+    int rightX = (x + PLAYER_SIZE / 2 - 1) / GRID;
+    int topY = (y - PLAYER_SIZE / 2) / GRID;
+    int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
+
     // 충돌 감지
-    if (map[bottomY][leftX] == 2 || map[bottomY][rightX] == 2) {
+    if (map0[bottomY][leftX] == 3 || map0[bottomY][rightX] == 3) {
         return true;
     }
 
@@ -297,8 +294,8 @@ void MovePlayer() {
     else {
         g_player.dx = 0; // 충돌 후 x축 속도 초기화
     }
-    bool isSlopeCollision = IsSlopeColliding(newX, newY);
-    if (isSlopeCollision) {
+    bool isSlopeGoRighCollision = IsSlopeGoRightColliding(g_player.x, g_player.y);
+    if (isSlopeGoRighCollision) {
         g_player.isSlooping = true;
         
         g_player.dy = 1; // 경사면 위에서 미끄러짐 속도
@@ -307,6 +304,23 @@ void MovePlayer() {
         newY = g_player.y + g_player.dy;
         g_player.x = newX;
         g_player.y = newY;
+    }
+    else {
+        g_player.isSlooping = false;
+    }
+    bool isSlopeGoLeftCollision = IsSlopeGoLeftColliding(g_player.x, g_player.y);
+    if (isSlopeGoLeftCollision) {
+        g_player.isSlooping = true;
+
+        g_player.dy = 1; // 경사면 위에서 미끄러짐 속도
+        g_player.dx = -2; // 오른쪽 아래로 미끄러짐
+        newX = g_player.x + g_player.dx;
+        newY = g_player.y + g_player.dy;
+        g_player.x = newX;
+        g_player.y = newY;
+    }
+    else {
+        g_player.isSlooping = false;
     }
 }
 
@@ -360,12 +374,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     HBITMAP hBitmap;
     RECT rt;
 
-    COLORREF COLOR_WHITE = RGB(255, 255, 255);
-    COLORREF COLOR_BLACK = RGB(0, 0, 0);
-
     switch (message) {
     case WM_CREATE:
-        //InitMap();
         InitPlayer();
         SetTimer(hWnd, 1, 1000 / 60, NULL);
         break;
