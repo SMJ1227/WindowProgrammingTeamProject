@@ -14,7 +14,7 @@ const int BOARD_WIDTH = MAP_WIDTH * GRID;
 const int BOARD_HEIGHT = MAP_HEIGHT * GRID;
 const int PLAYER_SIZE = 20;
 const double M_PI = 3.141592;
-const int GRAVITY = 1; // Ï§ëÎ†• ÏÉÅÏàò
+const int GRAVITY = 1; // ¡ﬂ∑¬ ªÛºˆ
 
 int map_num = 0;
 int map0[MAP_HEIGHT][MAP_WIDTH] = {
@@ -29,8 +29,8 @@ int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 3, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 0},
     {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
@@ -47,10 +47,9 @@ int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 0, 2, 1, 1, 1, 1, 0, 1, 1, 3, 0},
     {0, 0, 0, 2, 1, 1, 1, 1, 1, 3, 0, 0},
-    {0, 0, 0, 0, 2, 1, 1, 1, 3, 0, 0, 0},
+    {0, 4, 0, 0, 2, 1, 1, 1, 3, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
-
 
 using namespace std;
 
@@ -60,17 +59,18 @@ HINSTANCE g_hInst;
 LPCTSTR lpszClass = L"Window Class Name";
 LPCTSTR lpszWindowName = L"JumpKing";
 
-// Ï†ÑÏó≠ Î≥ÄÏàò
+// ¿¸ø™ ∫Øºˆ
 struct Player {
     int x, y;
     int dx, dy;
     int jumpSpeed;
     bool isCharging;
     bool isSlooping;
-    bool slip; // ÎØ∏ÎÅÑÎü¨ÏßÄÎäî ÎèôÏïà Í≥ÑÏÜç true
+    bool slip; // πÃ≤Ù∑Ø¡ˆ¥¬ µøæ» ∞Ëº” true
     string face;// face: left, right  
 
 } g_player;
+
 
 struct Item {
     int x, y;
@@ -80,11 +80,41 @@ vector<Item> g_items;
 
 struct Enemy {
     int x, y;
-    int dx, dy;
 };
 vector<Enemy> g_enemies;
 
-// WinMain Ìï®Ïàò
+struct Bullet {
+    int x, y;
+    int dx, dy;
+};
+vector<Bullet> g_bullets;
+
+void ProcessKeyboardDown(WPARAM wParam);
+void ProcessKeyboardUp(WPARAM wParam);
+void DrawMap(HDC hdc);
+void InitPlayer();
+void MovePlayer();
+void DrawPlayer(HDC hDC);
+void drawPlayerSprite(HDC hDC, HBITMAP playerBitmaps, HBITMAP playerBitmapsMask);
+void ApplyGravity();
+bool IsColliding(int x, int y);
+bool IsSlopeGoRightColliding(int x, int y);
+bool IsSlopeGoLeftColliding(int x, int y);
+void GenerateItem(int x, int y, int num);
+void DrawItems(HDC hdc);
+void GenerateEnemy(int x, int y);
+void DrawEnemies(HDC hDC);
+
+void ShootBullet();
+void MoveBullets();
+void DrawBullets(HDC hDC);
+
+void CheckCollisions();
+void CheckEnemyPlayerCollisions();
+void CheckItemPlayerCollisions();
+void CheckPlayerBulletCollisions();
+
+// WinMain «‘ºˆ
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow) {
     srand((unsigned int)time(NULL));
     HWND hWnd;
@@ -117,7 +147,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     return Message.wParam;
 }
 
-//Î©îÏù∏ Ìï®Ïàò
+//∏ﬁ¿Œ «‘ºˆ
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     PAINTSTRUCT ps;
@@ -125,6 +155,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     HDC mDC;
     HBITMAP hBitmap;
     RECT rt;
+    static HBITMAP playerBitmaps, playerBitmapsMask; // «√∑π¿ÃæÓ ∫Ò∆Æ∏  ¿ÃπÃ¡ˆ, ∫Ò∆Æ∏  ∏∂Ω∫≈© ¿ÃπÃ¡ˆ ∑ŒµÂ
 
     static int shootInterval = 0;
 
@@ -168,16 +199,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         hBitmap = CreateCompatibleBitmap(hDC, BOARD_WIDTH, BOARD_HEIGHT);
         SelectObject(mDC, (HBITMAP)hBitmap);
 
-        //--- Î™®Îì† Í∑∏Î¶¨Í∏∞Î•º Î©îÎ™®Î¶¨ DCÏóêÌïúÎã§.
+        //--- ∏µÁ ±◊∏Æ±‚∏¶ ∏ﬁ∏∏Æ DCø°«—¥Ÿ.
         DrawMap(mDC);
         DrawEnemies(mDC);
         DrawBullets(mDC);
-        DrawPlayer(mDC);
-        // Î©îÎ™®Î¶¨ DCÏóêÏÑú ÌôîÎ©¥ DCÎ°ú Í∑∏Î¶ºÏùÑ Î≥µÏÇ¨
-        // #1 Îßµ Ï†ÑÏ≤¥Î•º Í∑∏Î¶¨Í∏∞
+        drawPlayerSprite(mDC, playerBitmaps, playerBitmapsMask);
+        //DrawPlayer(mDC);
+        // ∏ﬁ∏∏Æ DCø°º≠ »≠∏È DC∑Œ ±◊∏≤¿ª ∫πªÁ
+        // #1 ∏  ¿¸√º∏¶ ±◊∏Æ±‚
         // BitBlt(hDC, 0, 0, BOARD_WIDTH, BOARD_HEIGHT, mDC, 0, 0, SRCCOPY);
 
-        // #2 ÌîåÎ†àÏù¥Ïñ¥ Ï£ºÎ≥ÄÏùò ÏòÅÏó≠ÏùÑ ÏúàÎèÑÏö∞ Ï†ÑÏ≤¥Î°ú ÌôïÎåÄ
+        // #2 «√∑π¿ÃæÓ ¡÷∫Ø¿« øµø™¿ª ¿©µµøÏ ¿¸√º∑Œ »Æ¥Î
         int stretchWidth = rt.right;
         int stretchHeight = rt.bottom;
         int sourceWidth = WINDOW_WIDTH;
@@ -191,7 +223,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 
         StretchBlt(hDC, 0, 0, stretchWidth, stretchHeight, mDC, sourceX, sourceY, sourceWidth, sourceHeight, SRCCOPY);
-        
+
         DeleteDC(mDC);
         DeleteObject(hBitmap);
         EndPaint(hWnd, &ps);
@@ -214,7 +246,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     return 0;
 }
 
-// ÌÇ§ÏûÖÎ†•
+// ≈∞¿‘∑¬
 void ProcessKeyboardDown(WPARAM wParam) {
     switch (wParam) {
     case VK_LEFT:
@@ -230,18 +262,18 @@ void ProcessKeyboardDown(WPARAM wParam) {
         g_player.face = "right";
         break;
     case VK_SPACE:
-        if (g_player.dy == 0 && g_player.jumpSpeed > -20) { // Î∞îÎã•Ïóê ÎãøÏïÑ ÏûàÏùÑ ÎïåÎßå Ï†êÌîÑ Í∞ÄÎä•
+        if (g_player.dy == 0 && g_player.jumpSpeed > -20) { // πŸ¥⁄ø° ¥Íæ∆ ¿÷¿ª ∂ß∏∏ ¡°«¡ ∞°¥…
             g_player.isCharging = true;
             g_player.dx = 0;
             g_player.jumpSpeed -= 5;
-        }        
+        }
         break;
     }
 }
 
 void ProcessKeyboardUp(WPARAM wParam) {
     switch (wParam) {
-    case VK_LEFT:       
+    case VK_LEFT:
     case VK_RIGHT:
         if (g_player.isSlooping)break;
         g_player.dx = 0;
@@ -254,40 +286,41 @@ void ProcessKeyboardUp(WPARAM wParam) {
     }
 }
 
+// ∏ 
 void DrawMap(HDC hdc) {
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
-            // ÌòÑÏû¨ ÎßµÏùò Í∞íÏù¥ 1Ïù¥Î©¥ Ìù∞ÏÉâ(ÌîåÎ†àÏù¥Ïñ¥ ÏòÅÏó≠), 0Ïù¥Î©¥ Í≤ÄÏùÄÏÉâÏúºÎ°ú Í∑∏Î¶ΩÎãàÎã§.
+            // «ˆ¿Á ∏ ¿« ∞™¿Ã 1¿Ã∏È »Úªˆ(«√∑π¿ÃæÓ øµø™), 0¿Ã∏È ∞À¿∫ªˆ¿∏∑Œ ±◊∏≥¥œ¥Ÿ.
             if (map0[y][x] == 0) {
-                // Í≤ÄÏùÄÏÉâ
+                // ∞À¿∫ªˆ
                 HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 0));
                 SelectObject(hdc, hBrush);
                 Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
                 DeleteObject(hBrush);
             }
             else if (map0[y][x] == 1) {
-                // Ìù∞ÏÉâ
+                // »Úªˆ
                 HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
                 SelectObject(hdc, hBrush);
                 Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
                 DeleteObject(hBrush);
             }
-            else if (map0[y][x] == 2) {  // Ïò§Î•∏Ï™Ω ÏïÑÎûòÎ°ú ÌùòÎü¨ÎÇ¥Î¶¨Îäî ÎπóÎ©¥
-                // Í≤ÄÏùÄÏÉâ
+            else if (map0[y][x] == 2) {  // ø¿∏•¬  æ∆∑°∑Œ »Í∑Ø≥ª∏Æ¥¬ ∫¯∏È
+                // ∞À¿∫ªˆ
                 POINT point[3];
                 point[0].x = x * GRID;
                 point[0].y = y * GRID;
                 point[1].x = x * GRID;
-                point[1].y = (y+1) * GRID;
-                point[2].x = (x+1) * GRID;
-                point[2].y = (y+1) * GRID;
+                point[1].y = (y + 1) * GRID;
+                point[2].x = (x + 1) * GRID;
+                point[2].y = (y + 1) * GRID;
                 HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
                 SelectObject(hdc, hBrush);
                 Polygon(hdc, point, 3);
                 DeleteObject(hBrush);
             }
-            else if (map0[y][x] == 3) {  // ÏôºÏ™Ω ÏïÑÎûòÎ°ú ÌùòÎü¨ÎÇ¥Î¶¨Îäî ÎπóÎ©¥
-                // Í≤ÄÏùÄÏÉâ
+            else if (map0[y][x] == 3) {  // øﬁ¬  æ∆∑°∑Œ »Í∑Ø≥ª∏Æ¥¬ ∫¯∏È
+                // ∞À¿∫ªˆ
                 POINT point[3];
                 point[0].x = (x + 1) * GRID;
                 point[0].y = y * GRID;
@@ -300,11 +333,14 @@ void DrawMap(HDC hdc) {
                 Polygon(hdc, point, 3);
                 DeleteObject(hBrush);
             }
+            else if (map0[y][x] == 4) {  // ¿˚
+                GenerateEnemy(x, y);
+            }
         }
     }
 }
 
-// ÌîåÎ†àÏù¥Ïñ¥
+// «√∑π¿ÃæÓ
 void InitPlayer() {
     g_player.x = (MAP_WIDTH - 7) * GRID;
     g_player.y = (MAP_HEIGHT - 4) * GRID;
@@ -315,94 +351,40 @@ void InitPlayer() {
     g_player.face = "left";
 }
 
-void ApplyGravity() {
-    if (g_player.dy < 20) {
-        g_player.dy += GRAVITY; // Ï§ëÎ†• Ï†ÅÏö©
-    }
-}
-
-bool IsColliding(int x, int y) {
-    int leftX = (x - PLAYER_SIZE / 2) / GRID;
-    int rightX = (x + PLAYER_SIZE / 2 - 1) / GRID;
-    int topY = (y - PLAYER_SIZE / 2) / GRID;
-    int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
-
-    // Îßµ Í≤ΩÍ≥ÑÎ•º Î≤óÏñ¥ÎÇòÏßÄ ÏïäÎèÑÎ°ù Ï≤¥ÌÅ¨
-    if (leftX < 0 || rightX >= MAP_WIDTH || topY < 0 || bottomY >= MAP_HEIGHT) {
-        return true;
-    }
-
-    // Ï∂©Îèå Í∞êÏßÄ
-    if (map0[topY][leftX] == 0 || map0[topY][rightX] == 0 ||
-        map0[bottomY][leftX] == 0 || map0[bottomY][rightX] == 0) {
-        return true;
-    }
-
-    return false;
-}
-
-bool IsSlopeGoRightColliding(int x, int y) {
-    int leftX = (x - PLAYER_SIZE / 2) / GRID;
-    int rightX = (x + PLAYER_SIZE / 2 - 1) / GRID;
-    int topY = (y - PLAYER_SIZE / 2) / GRID;
-    int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
-
-    // Ï∂©Îèå Í∞êÏßÄ
-    if (map0[bottomY][leftX] == 2 || map0[bottomY][rightX] == 2) {
-        g_player.slip = true;
-        return true;
-    }
-    return false;
-}
-
-bool IsSlopeGoLeftColliding(int x, int y) {
-    int leftX = (x - PLAYER_SIZE / 2) / GRID;
-    int rightX = (x + PLAYER_SIZE / 2 - 1) / GRID;
-    int topY = (y - PLAYER_SIZE / 2) / GRID;
-    int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
-
-    // Ï∂©Îèå Í∞êÏßÄ
-    if (map0[bottomY][leftX] == 3 || map0[bottomY][rightX] == 3) {
-        g_player.slip = true;
-        return true;
-    }
-    return false;
-}
-
 void MovePlayer() {
     int newX = g_player.x + g_player.dx;
     int newY = g_player.y + g_player.dy;
 
     bool isVerticalCollision = IsColliding(g_player.x, newY);
     bool isHorizontalCollision = IsColliding(newX, g_player.y);
-    
-    // ÏàòÏßÅ Ï∂©Îèå Ï≤òÎ¶¨
+
+    // ºˆ¡˜ √Êµπ √≥∏Æ
     if (!isVerticalCollision) {
         g_player.y = newY;
     }
     else {
-        // Î∞îÎã• Ï∂©Îèå Ïãú yÏ∂ï ÏúÑÏπò Î≥¥Ï†ï
+        // πŸ¥⁄ √Êµπ Ω√ y√‡ ¿ßƒ° ∫∏¡§
         if (g_player.dy > 0) {
             while (!IsColliding(g_player.x, g_player.y + 1)) {
                 g_player.y += 1;
             }
         }
-        g_player.dy = 0; // Ï∂©Îèå ÌõÑ yÏ∂ï ÏÜçÎèÑ Ï¥àÍ∏∞Ìôî
+        g_player.dy = 0; // √Êµπ »ƒ y√‡ º”µµ √ ±‚»≠
     }
 
-    // ÏàòÌèâ Ï∂©Îèå Ï≤òÎ¶¨
+    // ºˆ∆Ú √Êµπ √≥∏Æ
     if (!isHorizontalCollision) {
         g_player.x = newX;
     }
     else {
-        g_player.dx = 0; // Ï∂©Îèå ÌõÑ xÏ∂ï ÏÜçÎèÑ Ï¥àÍ∏∞Ìôî
+        g_player.dx = 0; // √Êµπ »ƒ x√‡ º”µµ √ ±‚»≠
     }
     bool isSlopeGoRighCollision = IsSlopeGoRightColliding(g_player.x, g_player.y);
     if (isSlopeGoRighCollision) {
         g_player.isSlooping = true;
-        
-        g_player.dy = 1; // Í≤ΩÏÇ¨Î©¥ ÏúÑÏóêÏÑú ÎØ∏ÎÅÑÎü¨Ïßê ÏÜçÎèÑ
-        g_player.dx = 2; // Ïò§Î•∏Ï™Ω ÏïÑÎûòÎ°ú ÎØ∏ÎÅÑÎü¨Ïßê
+
+        g_player.dy = 1; // ∞ÊªÁ∏È ¿ßø°º≠ πÃ≤Ù∑Ø¡¸ º”µµ
+        g_player.dx = 2; // ø¿∏•¬  æ∆∑°∑Œ πÃ≤Ù∑Ø¡¸
         newX = g_player.x + g_player.dx;
         newY = g_player.y + g_player.dy;
         g_player.x = newX;
@@ -415,8 +397,8 @@ void MovePlayer() {
     if (isSlopeGoLeftCollision) {
         g_player.isSlooping = true;
 
-        g_player.dy = 1; // Í≤ΩÏÇ¨Î©¥ ÏúÑÏóêÏÑú ÎØ∏ÎÅÑÎü¨Ïßê ÏÜçÎèÑ
-        g_player.dx = -2; // Ïò§Î•∏Ï™Ω ÏïÑÎûòÎ°ú ÎØ∏ÎÅÑÎü¨Ïßê
+        g_player.dy = 1; // ∞ÊªÁ∏È ¿ßø°º≠ πÃ≤Ù∑Ø¡¸ º”µµ
+        g_player.dx = -2; // ø¿∏•¬  æ∆∑°∑Œ πÃ≤Ù∑Ø¡¸
         newX = g_player.x + g_player.dx;
         newY = g_player.y + g_player.dy;
         g_player.x = newX;
@@ -434,41 +416,7 @@ void DrawPlayer(HDC hdc) {
     DeleteObject(hBrush);
 }
 
-// ÏïÑÏù¥ÌÖú
-void GenerateItem(int x, int y, int num) {
-    Item newItem;
-    newItem.x = x;
-    newItem.y = y;
-    g_items.push_back(newItem);
-}
-
-void DrawItems(HDC hdc) {
-    for (const auto& item : g_items) {
-        HBRUSH hBrush1 = CreateSolidBrush(RGB(255, 255, 255));
-        SelectObject(hdc, hBrush1);
-        Rectangle(hdc, item.x * GRID, item.y * GRID, (item.x + 1) * GRID, (item.y + 1) * GRID); // ÏïÑÏù¥ÌÖú Í∑∏Î¶¨Í∏∞
-        DeleteObject(hBrush1);
-    }
-}
-
-// Ï∂©Îèå ÌôïÏù∏ Ìï®Ïàò
-void CheckItemPlayerCollisions() {
-    for (auto it = g_items.begin(); it != g_items.end(); ) {
-        if (it->x >= g_player.x - PLAYER_SIZE / 2 && it->x <= g_player.x + PLAYER_SIZE / 2 &&
-            it->y >= g_player.y - PLAYER_SIZE / 2 && it->y <= g_player.y + PLAYER_SIZE / 2) {
-            it = g_items.erase(it); // ÏïÑÏù¥ÌÖúÍ≥º Ï∂©Îèå Ïãú Ï†úÍ±∞
-        }
-        else {
-            ++it;
-        }
-    }
-}
-
-void CheckCollisions() {
-    CheckItemPlayerCollisions();
-}
-
-// ÎπÑÌä∏Îßµ Î©îÎ™®Î¶¨DCÎ°ú Î≥µÏÇ¨
+// ∫Ò∆Æ∏  ∏ﬁ∏∏ÆDC∑Œ ∫πªÁ
 void drawPlayerSprite(HDC hDC, HBITMAP playerBitmaps, HBITMAP playerBitmapsMask) {
     if (g_player.dy == 0 && g_player.jumpSpeed == 0 && g_player.dx != 0) {
         playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(MOVE1));
@@ -482,7 +430,7 @@ void drawPlayerSprite(HDC hDC, HBITMAP playerBitmaps, HBITMAP playerBitmapsMask)
         playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(SLIP2));
         playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(SLIP2_MASK));
     }
-    else if (g_player.dy > 0){
+    else if (g_player.dy > 0) {
         playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(FALL));
         playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(FALL_MASK));
     }
@@ -493,9 +441,9 @@ void drawPlayerSprite(HDC hDC, HBITMAP playerBitmaps, HBITMAP playerBitmapsMask)
         }
         else {
             playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(CHARGE2));
-            playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(CHARGE2_MASK));        
+            playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(CHARGE2_MASK));
         }
-    }    
+    }
     else {
         playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(IDLE));
         playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(IDLE_MASK));
@@ -504,116 +452,154 @@ void drawPlayerSprite(HDC hDC, HBITMAP playerBitmaps, HBITMAP playerBitmapsMask)
     HBITMAP oldBitmap;
     BITMAP bmp;
     GetObject(playerBitmaps, sizeof(BITMAP), &bmp);
-    
-    if (g_player.face == "left") {    
+
+    if (g_player.face == "left") {
         oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmapsMask);
         StretchBlt(hDC, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCAND);
         oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmaps);
         StretchBlt(hDC, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCPAINT);
         SelectObject(hmemDC, oldBitmap);
     }
-    else if(g_player.face == "right"){
+    else if (g_player.face == "right") {
         oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmapsMask);
         StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCAND);
         oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmaps);
-		StretchBlt(hDC, g_player.x + PLAYER_SIZE/2, g_player.y - PLAYER_SIZE/2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCPAINT);
+        StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCPAINT);
         SelectObject(hmemDC, oldBitmap);
-	}
-    
-	DeleteDC(hmemDC);
-	DeleteObject(playerBitmaps);
+    }
+
+    DeleteDC(hmemDC);
+    DeleteObject(playerBitmaps);
     DeleteObject(playerBitmapsMask);
 }
-//Î©îÏù∏ Ìï®Ïàò
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    PAINTSTRUCT ps;
-    HDC hDC = BeginPaint(hWnd, &ps);
-    HDC mDC;
-    HBITMAP hBitmap;
-    RECT rt;
-    static HBITMAP playerBitmaps, playerBitmapsMask; // ÌîåÎ†àÏù¥Ïñ¥ ÎπÑÌä∏Îßµ Ïù¥ÎØ∏ÏßÄ, ÎπÑÌä∏Îßµ ÎßàÏä§ÌÅ¨ Ïù¥ÎØ∏ÏßÄ Î°úÎìú
-    switch (message) {
-    case WM_CREATE:
-        InitPlayer();
-        SetTimer(hWnd, 1, 1000 / 60, NULL);
-
-        
-        break;
-    case WM_COMMAND:
-        switch (LOWORD(wParam)) {}
-        break;
-    case WM_CHAR:
-        switch (wParam)
-        {
-        case 'Q':
-        case 'q':
-            PostQuitMessage(0);
-            break;
-        }
-        break;
-    case WM_TIMER:
-        switch (wParam) {
-        case 1:
-            ApplyGravity();
-            MovePlayer();
-            break;
-        }
-        InvalidateRect(hWnd, NULL, FALSE);
-        break;
-    case WM_PAINT:
-    {
-        GetClientRect(hWnd, &rt);
-        mDC = CreateCompatibleDC(hDC);
-        hBitmap = CreateCompatibleBitmap(hDC, BOARD_WIDTH, BOARD_HEIGHT);
-        SelectObject(mDC, (HBITMAP)hBitmap);
-
-        //--- Î™®Îì† Í∑∏Î¶¨Í∏∞Î•º Î©îÎ™®Î¶¨ DCÏóêÌïúÎã§.
-        DrawMap(mDC);
-        //DrawPlayer(mDC);
-        drawPlayerSprite(mDC, playerBitmaps, playerBitmapsMask);
-        // Î©îÎ™®Î¶¨ DCÏóêÏÑú ÌôîÎ©¥ DCÎ°ú Í∑∏Î¶ºÏùÑ Î≥µÏÇ¨
-        // #1 Îßµ Ï†ÑÏ≤¥Î•º Í∑∏Î¶¨Í∏∞
-        // BitBlt(hDC, 0, 0, BOARD_WIDTH, BOARD_HEIGHT, mDC, 0, 0, SRCCOPY);
-
-        // #2 ÌîåÎ†àÏù¥Ïñ¥ Ï£ºÎ≥ÄÏùò ÏòÅÏó≠ÏùÑ ÏúàÎèÑÏö∞ Ï†ÑÏ≤¥Î°ú ÌôïÎåÄ
-        int stretchWidth = rt.right;
-        int stretchHeight = rt.bottom;
-        int sourceWidth = WINDOW_WIDTH;
-        int sourceHeight = WINDOW_HEIGHT;
-        int sourceX = g_player.x - WINDOW_WIDTH / 2;
-        if (sourceX <= 0) { sourceX = 0; }
-        if (g_player.x + WINDOW_WIDTH / 2 >= WINDOW_WIDTH) { sourceX = WINDOW_WIDTH - sourceWidth; }
-        int sourceY = g_player.y - WINDOW_HEIGHT / 2;
-        if (sourceY - sourceHeight >= 0) { sourceY = sourceHeight + GRID; }
-        if (sourceY <= 0) { sourceY = 0; }
-
-
-        StretchBlt(hDC, 0, 0, stretchWidth, stretchHeight, mDC, sourceX, sourceY, sourceWidth, sourceHeight, SRCCOPY);
-        
-        DeleteDC(mDC);
-        DeleteObject(hBitmap);
-        EndPaint(hWnd, &ps);
-        break;
+void ApplyGravity() {
+    if (g_player.dy < 20) {
+        g_player.dy += GRAVITY; // ¡ﬂ∑¬ ¿˚øÎ
     }
-    case WM_KEYDOWN:
-        ProcessKeyboardDown(wParam);
-        InvalidateRect(hWnd, NULL, FALSE);
-        break;
-    case WM_KEYUP:
-        ProcessKeyboardUp(wParam);
-        InvalidateRect(hWnd, NULL, FALSE);
-        break;
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-    return 0;
 }
 
-// Ï∂©Îèå ÌôïÏù∏ Ìï®Ïàò
+bool IsColliding(int x, int y) {
+    int leftX = (x - PLAYER_SIZE / 2) / GRID;
+    int rightX = (x + PLAYER_SIZE / 2 - 1) / GRID;
+    int topY = (y - PLAYER_SIZE / 2) / GRID;
+    int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
+
+    // ∏  ∞Ê∞Ë∏¶ π˛æÓ≥™¡ˆ æ µµ∑œ √º≈©
+    if (leftX < 0 || rightX >= MAP_WIDTH || topY < 0 || bottomY >= MAP_HEIGHT) {
+        return true;
+    }
+
+    // √Êµπ ∞®¡ˆ
+    if (map0[topY][leftX] == 0 || map0[topY][rightX] == 0 ||
+        map0[bottomY][leftX] == 0 || map0[bottomY][rightX] == 0) {
+        return true;
+    }
+
+    return false;
+}
+
+bool IsSlopeGoRightColliding(int x, int y) {
+    int leftX = (x - PLAYER_SIZE / 2) / GRID;
+    int rightX = (x + PLAYER_SIZE / 2 - 1) / GRID;
+    int topY = (y - PLAYER_SIZE / 2) / GRID;
+    int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
+
+    // √Êµπ ∞®¡ˆ
+    if (map0[bottomY][leftX] == 2 || map0[bottomY][rightX] == 2) {
+        g_player.slip = true;
+        return true;
+    }
+
+    return false;
+}
+
+bool IsSlopeGoLeftColliding(int x, int y) {
+    int leftX = (x - PLAYER_SIZE / 2) / GRID;
+    int rightX = (x + PLAYER_SIZE / 2 - 1) / GRID;
+    int topY = (y - PLAYER_SIZE / 2) / GRID;
+    int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
+
+    // √Êµπ ∞®¡ˆ
+    if (map0[bottomY][leftX] == 3 || map0[bottomY][rightX] == 3) {
+        g_player.slip = true;
+        return true;
+    }
+
+    return false;
+}
+
+// æ∆¿Ã≈€
+void GenerateItem(int x, int y, int num) {
+    Item newItem;
+    newItem.x = x;
+    newItem.y = y;
+    g_items.push_back(newItem);
+}
+
+void DrawItems(HDC hdc) {
+    for (const auto& item : g_items) {
+        HBRUSH hBrush1 = CreateSolidBrush(RGB(255, 255, 255));
+        SelectObject(hdc, hBrush1);
+        Rectangle(hdc, item.x * GRID, item.y * GRID, (item.x + 1) * GRID, (item.y + 1) * GRID); // æ∆¿Ã≈€ ±◊∏Æ±‚
+        DeleteObject(hBrush1);
+    }
+}
+
+// ¿˚
+void GenerateEnemy(int x, int y) {
+    Enemy newEnemy;
+    newEnemy.x = x;
+    newEnemy.y = y;
+    g_enemies.push_back(newEnemy);
+}
+
+void DrawEnemies(HDC hdc) {
+    for (const auto& enemy : g_enemies) {
+        HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 0));
+        SelectObject(hdc, hBrush);
+        Rectangle(hdc, enemy.x * GRID, enemy.y * GRID, (enemy.x + 1) * GRID, (enemy.y + 1) * GRID);
+        DeleteObject(hBrush);
+    }
+}
+
+void ShootBullet() {
+    for (const auto& enemy : g_enemies) {
+        Bullet newBullet;
+        newBullet.x = enemy.x * GRID; // ¿˚¿« ¿ßƒ°ø°º≠ √—æÀ¿Ã ≥™∞°µµ∑œ º≥¡§
+        newBullet.y = enemy.y * GRID + GRID / 2;
+        newBullet.dx = 2;
+        newBullet.dy = 0;
+        g_bullets.push_back(newBullet);
+    }
+}
+
+
+void MoveBullets() {
+    for (auto it = g_bullets.begin(); it != g_bullets.end();) {
+        it->x += it->dx;
+        it->y += it->dy;
+        if (it->x < 0 || it->x > BOARD_WIDTH) {
+            it = g_bullets.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+}
+
+void DrawBullets(HDC hdc) {
+    HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
+    SelectObject(hdc, hBrush);
+    for (const auto& bullet : g_bullets) {
+        if (bullet.x >= 0 && bullet.x <= BOARD_WIDTH && bullet.y >= 0 && bullet.y <= BOARD_HEIGHT) {
+            Ellipse(hdc, bullet.x - 10, bullet.y - 10, bullet.x + 10, bullet.y + 10);
+        }
+    }
+    DeleteObject(hBrush);
+}
+
+// √Êµπ »Æ¿Œ «‘ºˆ
 void CheckCollisions() {
     CheckItemPlayerCollisions();
     CheckPlayerBulletCollisions();
@@ -623,19 +609,22 @@ void CheckItemPlayerCollisions() {
     for (auto it = g_items.begin(); it != g_items.end(); ) {
         if (it->x >= g_player.x - PLAYER_SIZE / 2 && it->x <= g_player.x + PLAYER_SIZE / 2 &&
             it->y >= g_player.y - PLAYER_SIZE / 2 && it->y <= g_player.y + PLAYER_SIZE / 2) {
-            it = g_items.erase(it); // ÏïÑÏù¥ÌÖúÍ≥º Ï∂©Îèå Ïãú Ï†úÍ±∞
+            it = g_items.erase(it); // æ∆¿Ã≈€∞˙ √Êµπ Ω√ ¡¶∞≈
+        }
+        else {
+            ++it;
         }
     }
 }
-            
+
 void CheckPlayerBulletCollisions() {
     for (auto it = g_bullets.begin(); it != g_bullets.end(); ) {
         if (it->x >= g_player.x - PLAYER_SIZE / 2 && it->x <= g_player.x + PLAYER_SIZE / 2 &&
             it->y >= g_player.y - PLAYER_SIZE / 2 && it->y <= g_player.y + PLAYER_SIZE / 2) {
-            // ÌîåÎ†àÏù¥Ïñ¥ÏôÄ Ï∂©Îèå Ïãú Ï†úÍ±∞
+            // «√∑π¿ÃæÓøÕ √Êµπ Ω√ ¡¶∞≈
             it = g_bullets.erase(it);
-            // ÌîåÎ†àÏù¥Ïñ¥Î•º Îí§Î°ú Î∞ÄÏπ®
-            
+            // «√∑π¿ÃæÓ∏¶ µ⁄∑Œ π–ƒß
+
         }
         else {
             ++it;

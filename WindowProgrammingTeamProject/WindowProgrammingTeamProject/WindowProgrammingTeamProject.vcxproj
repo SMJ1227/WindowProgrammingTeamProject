@@ -136,9 +136,6 @@
     <ResourceCompile Include="WindowProgrammingTeamProject.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="deserttile.png" />
-    <Image Include="PlayerSprite.png" />
-    <Image Include="snowtile.png" />
     <Image Include="tmw_desert_spacing.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
