@@ -1,16 +1,31 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++¿¡¼­ »ı¼ºÇÑ Æ÷ÇÔ ÆÄÀÏÀÔ´Ï´Ù.
-// WindowProgrammingTeamProject.rc¿¡¼­ »ç¿ëµÇ°í ÀÖ½À´Ï´Ù.
+// Microsoft Visual C++ì—ì„œ ìƒì„±í•œ í¬í•¨ íŒŒì¼ì…ë‹ˆë‹¤.
+// WindowProgrammingTeamProject.rcì—ì„œ ì‚¬ìš©ë˜ê³  ìˆìŠµë‹ˆë‹¤.
 //
 #define IDB_PNG1                        101
-#define IDB_PNG2                        102
-#define IDB_PNG3                        103
+#define IDLE                            102
+#define MOVE1                           103
+#define MOVE2                           104
+#define CHARGE1                         105
+#define JUMP                            106
+#define FALL                            107
+#define SLIP                            108
+#define SLIP2                           109
+#define IDLE_MASK                       110
+#define MOVE1_MASK                      111
+#define CHARGE1_MASK                    112
+#define JUMP_MASK                       113
+#define FALL_MASK                       114
+#define SLIP2_MASK                      115
+#define CHARGE2                         117
+#define CHARGE2_MASK                    118
+#define MOVE2_MASK                     119
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        104
+#define _APS_NEXT_RESOURCE_VALUE        120
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
