@@ -27,8 +27,8 @@ int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 3, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 0},
     {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
@@ -48,7 +48,6 @@ int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 0, 0, 0, 2, 1, 1, 1, 3, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
-
 
 using namespace std;
 
@@ -75,9 +74,14 @@ vector<Item> g_items;
 
 struct Enemy {
     int x, y;
-    int dx, dy;
 };
 vector<Enemy> g_enemies;
+
+struct Bullet {
+    int x, y;
+    int dx;
+};
+vector<Bullet> g_bullets;
 
 // WinMain 함수
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow) {
@@ -149,56 +153,6 @@ void ProcessKeyboardUp(WPARAM wParam) {
         g_player.jumpSpeed = 0;
         g_player.isCharging = false;
         break;
-    }
-}
-
-void DrawMap(HDC hdc) {
-    for (int y = 0; y < MAP_HEIGHT; y++) {
-        for (int x = 0; x < MAP_WIDTH; x++) {
-            // 현재 맵의 값이 1이면 흰색(플레이어 영역), 0이면 검은색으로 그립니다.
-            if (map0[y][x] == 0) {
-                // 검은색
-                HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 0));
-                SelectObject(hdc, hBrush);
-                Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
-                DeleteObject(hBrush);
-            }
-            else if (map0[y][x] == 1) {
-                // 흰색
-                HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
-                SelectObject(hdc, hBrush);
-                Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
-                DeleteObject(hBrush);
-            }
-            else if (map0[y][x] == 2) {  // 오른쪽 아래로 흘러내리는 빗면
-                // 검은색
-                POINT point[3];
-                point[0].x = x * GRID;
-                point[0].y = y * GRID;
-                point[1].x = x * GRID;
-                point[1].y = (y+1) * GRID;
-                point[2].x = (x+1) * GRID;
-                point[2].y = (y+1) * GRID;
-                HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
-                SelectObject(hdc, hBrush);
-                Polygon(hdc, point, 3);
-                DeleteObject(hBrush);
-            }
-            else if (map0[y][x] == 3) {  // 왼쪽 아래로 흘러내리는 빗면
-                // 검은색
-                POINT point[3];
-                point[0].x = (x + 1) * GRID;
-                point[0].y = y * GRID;
-                point[1].x = x * GRID;
-                point[1].y = (y + 1) * GRID;
-                point[2].x = (x + 1) * GRID;
-                point[2].y = (y + 1) * GRID;
-                HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
-                SelectObject(hdc, hBrush);
-                Polygon(hdc, point, 3);
-                DeleteObject(hBrush);
-            }
-        }
     }
 }
 
@@ -331,6 +285,45 @@ void DrawPlayer(HDC hdc) {
     DeleteObject(hBrush);
 }
 
+// 적
+void GenerateEnemy(int x, int y) {
+    Enemy newEnemy;
+    newEnemy.x = x * GRID;
+    newEnemy.y = y * GRID;
+    g_enemies.push_back(newEnemy);
+}
+
+void ShootBullet() {
+    //for (auto it = g_enemies.begin(); it != g_enemies.end();) {
+        Bullet newBullet;
+        newBullet.x = g_player.x;
+        newBullet.y = g_player.y;//it->y;
+        newBullet.dx = 1;
+        g_bullets.push_back(newBullet);
+   //}
+}
+
+void MoveBullets() {
+    for (auto it = g_bullets.begin(); it != g_bullets.end();) {
+        it->x += it->dx;
+        if (it->x < 0 || it->x > BOARD_WIDTH) {
+            it = g_bullets.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+}
+
+void DrawBullets(HDC hdc) {
+    HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
+    SelectObject(hdc, hBrush);
+    for (const auto& bullet : g_bullets) {
+        Rectangle(hdc, bullet.x * GRID, bullet.y * GRID, (bullet.x + 1) * GRID, (bullet.y + 1) * GRID);
+    }
+    DeleteObject(hBrush);
+}
+
 // 아이템
 void GenerateItem(int x, int y, int num) {
     Item newItem;
@@ -365,6 +358,63 @@ void CheckCollisions() {
     CheckItemPlayerCollisions();
 }
 
+void DrawMap(HDC hdc) {
+    for (int y = 0; y < MAP_HEIGHT; y++) {
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            // 현재 맵의 값이 1이면 흰색(플레이어 영역), 0이면 검은색으로 그립니다.
+            if (map0[y][x] == 0) {
+                // 검은색
+                HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 0));
+                SelectObject(hdc, hBrush);
+                Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
+                DeleteObject(hBrush);
+            }
+            else if (map0[y][x] == 1) {
+                // 흰색
+                HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
+                SelectObject(hdc, hBrush);
+                Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
+                DeleteObject(hBrush);
+            }
+            else if (map0[y][x] == 2) {  // 오른쪽 아래로 흘러내리는 빗면
+                // 검은색
+                POINT point[3];
+                point[0].x = x * GRID;
+                point[0].y = y * GRID;
+                point[1].x = x * GRID;
+                point[1].y = (y + 1) * GRID;
+                point[2].x = (x + 1) * GRID;
+                point[2].y = (y + 1) * GRID;
+                HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
+                SelectObject(hdc, hBrush);
+                Polygon(hdc, point, 3);
+                DeleteObject(hBrush);
+            }
+            else if (map0[y][x] == 3) {  // 왼쪽 아래로 흘러내리는 빗면
+                // 검은색
+                POINT point[3];
+                point[0].x = (x + 1) * GRID;
+                point[0].y = y * GRID;
+                point[1].x = x * GRID;
+                point[1].y = (y + 1) * GRID;
+                point[2].x = (x + 1) * GRID;
+                point[2].y = (y + 1) * GRID;
+                HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
+                SelectObject(hdc, hBrush);
+                Polygon(hdc, point, 3);
+                DeleteObject(hBrush);
+            }
+            else if (map0[y][x] == 4) {  // 적
+                GenerateEnemy(x, y);
+                HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 0));
+                SelectObject(hdc, hBrush);
+                Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
+                DeleteObject(hBrush);
+            }
+        }
+    }
+}
+
 //메인 함수
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -373,6 +423,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     HDC mDC;
     HBITMAP hBitmap;
     RECT rt;
+
+    static int shootInterval = 0;
 
     switch (message) {
     case WM_CREATE:
@@ -389,6 +441,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         case 'q':
             PostQuitMessage(0);
             break;
+        case 'a':
+            ShootBullet();
+            break;
         }
         break;
     case WM_TIMER:
@@ -396,6 +451,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         case 1:
             ApplyGravity();
             MovePlayer();
+            MoveBullets();
             break;
         }
         InvalidateRect(hWnd, NULL, FALSE);
@@ -409,8 +465,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
         //--- 모든 그리기를 메모리 DC에한다.
         DrawMap(mDC);
+        DrawBullets(mDC);
         DrawPlayer(mDC);
-
         // 메모리 DC에서 화면 DC로 그림을 복사
         // #1 맵 전체를 그리기
         // BitBlt(hDC, 0, 0, BOARD_WIDTH, BOARD_HEIGHT, mDC, 0, 0, SRCCOPY);
