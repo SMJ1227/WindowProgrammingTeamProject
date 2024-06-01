@@ -179,6 +179,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
                 ShootBullet();
                 shootInterval = 0;
             }
+            CheckCollisions();
             break;
         }
         InvalidateRect(hWnd, NULL, FALSE);
@@ -528,6 +529,11 @@ void DrawBullets(HDC hdc) {
 }
 
 // 충돌 확인 함수
+void CheckCollisions() {
+    CheckItemPlayerCollisions();
+    CheckPlayerBulletCollisions();
+}
+
 void CheckItemPlayerCollisions() {
     for (auto it = g_items.begin(); it != g_items.end(); ) {
         if (it->x >= g_player.x - PLAYER_SIZE / 2 && it->x <= g_player.x + PLAYER_SIZE / 2 &&
@@ -540,6 +546,17 @@ void CheckItemPlayerCollisions() {
     }
 }
 
-void CheckCollisions() {
-    CheckItemPlayerCollisions();
+void CheckPlayerBulletCollisions() {
+    for (auto it = g_bullets.begin(); it != g_bullets.end(); ) {
+        if (it->x >= g_player.x - PLAYER_SIZE / 2 && it->x <= g_player.x + PLAYER_SIZE / 2 &&
+            it->y >= g_player.y - PLAYER_SIZE / 2 && it->y <= g_player.y + PLAYER_SIZE / 2) {
+            // 플레이어와 충돌 시 제거
+            it = g_bullets.erase(it);
+            // 플레이어를 뒤로 밀침
+            
+        }
+        else {
+            ++it;
+        }
+    }
 }
