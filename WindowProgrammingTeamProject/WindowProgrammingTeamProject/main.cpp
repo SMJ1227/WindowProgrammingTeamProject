@@ -29,8 +29,8 @@ int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0},
-    {0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 3, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 0},
     {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
@@ -65,7 +65,8 @@ struct Player {
     int dx, dy;
     int jumpSpeed;
     bool isCharging;
-    bool isSlooping;
+    bool isJumping;
+    bool isSliding;
     bool slip; // 미끄러지는 동안 계속 true
     string face;// face: left, right  
 
@@ -251,17 +252,18 @@ void ProcessKeyboardDown(WPARAM wParam) {
     switch (wParam) {
     case VK_LEFT:
         if (g_player.isCharging)break;
-        if (g_player.isSlooping)break;
+        if (g_player.isSliding)break;
         g_player.dx = -3;
         g_player.face = "left";
         break;
     case VK_RIGHT:
         if (g_player.isCharging)break;
-        if (g_player.isSlooping)break;
+        if (g_player.isSliding)break;
         g_player.dx = 3;
         g_player.face = "right";
         break;
     case VK_SPACE:
+        if (g_player.isJumping)break;
         if (g_player.dy == 0 && g_player.jumpSpeed > -20) { // 바닥에 닿아 있을 때만 점프 가능
             g_player.isCharging = true;
             g_player.dx = 0;
@@ -275,13 +277,15 @@ void ProcessKeyboardUp(WPARAM wParam) {
     switch (wParam) {
     case VK_LEFT:
     case VK_RIGHT:
-        if (g_player.isSlooping)break;
+        if (g_player.isSliding)break;
         g_player.dx = 0;
         break;
     case VK_SPACE:
+        if (g_player.isJumping)break;
         g_player.dy = g_player.jumpSpeed;
         g_player.jumpSpeed = 0;
         g_player.isCharging = false;
+        g_player.isJumping = true;
         break;
     }
 }
@@ -348,6 +352,7 @@ void InitPlayer() {
     g_player.dy = 0;
     g_player.jumpSpeed = 0;
     g_player.isCharging = false;
+    g_player.isJumping = false;
     g_player.face = "left";
 }
 
@@ -370,6 +375,7 @@ void MovePlayer() {
             }
         }
         g_player.dy = 0; // 충돌 후 y축 속도 초기화
+        g_player.isJumping = false;
     }
 
     // 수평 충돌 처리
@@ -381,7 +387,7 @@ void MovePlayer() {
     }
     bool isSlopeGoRighCollision = IsSlopeGoRightColliding(g_player.x, g_player.y);
     if (isSlopeGoRighCollision) {
-        g_player.isSlooping = true;
+        g_player.isSliding = true;
 
         g_player.dy = 1; // 경사면 위에서 미끄러짐 속도
         g_player.dx = 2; // 오른쪽 아래로 미끄러짐
@@ -391,11 +397,11 @@ void MovePlayer() {
         g_player.y = newY;
     }
     else {
-        g_player.isSlooping = false;
+        g_player.isSliding = false;
     }
     bool isSlopeGoLeftCollision = IsSlopeGoLeftColliding(g_player.x, g_player.y);
     if (isSlopeGoLeftCollision) {
-        g_player.isSlooping = true;
+        g_player.isSliding = true;
 
         g_player.dy = 1; // 경사면 위에서 미끄러짐 속도
         g_player.dx = -2; // 오른쪽 아래로 미끄러짐
@@ -405,7 +411,7 @@ void MovePlayer() {
         g_player.y = newY;
     }
     else {
-        g_player.isSlooping = false;
+        g_player.isSliding = false;
     }
 }
 
@@ -603,13 +609,31 @@ void DrawBullets(HDC hdc) {
 void CheckCollisions() {
     CheckItemPlayerCollisions();
     CheckPlayerBulletCollisions();
+    CheckEnemyPlayerCollisions();
 }
+
+void CheckEnemyPlayerCollisions() {
+    for (auto it = g_enemies.begin(); it != g_enemies.end(); ) {
+        if (g_player.x >= it->x * GRID && g_player.x <= (it->x + 1) * GRID &&
+            g_player.y >= it->y * GRID && g_player.y <= (it->y + 1) * GRID) {
+            g_player.dx = 4;
+            g_player.isCharging = false;
+            g_player.jumpSpeed = 0;
+            ++it; // 충돌 시 반복자를 증가시킵니다.
+        }
+        else {
+            ++it; // 충돌이 발생하지 않았을 때도 반복자를 증가시킵니다.
+        }
+    }
+}
+
 
 void CheckItemPlayerCollisions() {
     for (auto it = g_items.begin(); it != g_items.end(); ) {
         if (it->x >= g_player.x - PLAYER_SIZE / 2 && it->x <= g_player.x + PLAYER_SIZE / 2 &&
             it->y >= g_player.y - PLAYER_SIZE / 2 && it->y <= g_player.y + PLAYER_SIZE / 2) {
-            it = g_items.erase(it); // 아이템과 충돌 시 제거
+            // 아이템과 충돌 시 제거
+            it = g_items.erase(it);
         }
         else {
             ++it;
@@ -621,9 +645,12 @@ void CheckPlayerBulletCollisions() {
     for (auto it = g_bullets.begin(); it != g_bullets.end(); ) {
         if (it->x >= g_player.x - PLAYER_SIZE / 2 && it->x <= g_player.x + PLAYER_SIZE / 2 &&
             it->y >= g_player.y - PLAYER_SIZE / 2 && it->y <= g_player.y + PLAYER_SIZE / 2) {
+            // 플레이어를 뒤로 밀침
+            g_player.dx = it->dx * 2;
+            g_player.isCharging = false;
+            g_player.jumpSpeed = 0;
             // 플레이어와 충돌 시 제거
             it = g_bullets.erase(it);
-            // 플레이어를 뒤로 밀침
 
         }
         else {
