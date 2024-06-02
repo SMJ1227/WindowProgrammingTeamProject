@@ -115,37 +115,6 @@ void CheckEnemyPlayerCollisions();
 void CheckItemPlayerCollisions();
 void CheckPlayerBulletCollisions();
 
-
-struct Bullet {
-    int x, y;
-    int dx, dy;
-};
-vector<Bullet> g_bullets;
-
-void ProcessKeyboardDown(WPARAM wParam);
-void ProcessKeyboardUp(WPARAM wParam);
-void DrawMap(HDC hdc, HBRUSH hBlackBrush, HBRUSH hWhiteBrush, HBRUSH hRedBrush);
-void InitPlayer();
-void MovePlayer();
-void DrawPlayer(HDC hDC);
-void drawPlayerSprite(HDC hDC, HBITMAP playerBitmaps, HBITMAP playerBitmapsMask);
-void ApplyGravity();
-bool IsColliding(int x, int y);
-bool IsSlopeGoRightColliding(int x, int y);
-bool IsSlopeGoLeftColliding(int x, int y);
-void GenerateItem(int x, int y, int num);
-void DrawItems(HDC hdc);
-void InitEnemy();
-void GenerateEnemy(int x, int y);
-void DrawEnemies(HDC hDC);
-void ShootBullet();
-void MoveBullets();
-void DrawBullets(HDC hDC);
-void CheckCollisions();
-void CheckEnemyPlayerCollisions();
-void CheckItemPlayerCollisions();
-void CheckPlayerBulletCollisions();
-
 // WinMain 함수
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow) {
     srand((unsigned int)time(NULL));
@@ -616,158 +585,6 @@ void DrawEnemies(HDC hdc) {
         SelectObject(hdc, hBrush);
         Rectangle(hdc, enemy.x * GRID, enemy.y * GRID, (enemy.x + 1) * GRID, (enemy.y + 1) * GRID);
         DeleteObject(hBrush);
-// 비트맵 메모리DC로 복사
-void drawPlayerSprite(HDC hDC, HBITMAP playerBitmaps, HBITMAP playerBitmapsMask) {
-    if (g_player.dy == 0 && g_player.jumpSpeed == 0 && g_player.dx != 0) {
-        playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(MOVE1));
-        playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(MOVE1_MASK));
-    }
-}
-
-void ShootBullet() {
-    for (const auto& enemy : g_enemies) {
-        Bullet newBullet;
-        newBullet.x = enemy.x * GRID; // 적의 위치에서 총알이 나가도록 설정
-        newBullet.y = enemy.y * GRID + GRID / 2;
-        newBullet.dx = 2;
-        newBullet.dy = 0;
-        g_bullets.push_back(newBullet);
-    }
-    else if (g_player.dy > 0) {
-        playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(FALL));
-        playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(FALL_MASK));
-    }
-    else if (g_player.dy == 0 && g_player.jumpSpeed < 0) {
-        if (g_player.jumpSpeed == -20) {
-            playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(CHARGE1));
-            playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(CHARGE1_MASK));
-        }
-        else {
-            playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(CHARGE2));
-            playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(CHARGE2_MASK));
-        }
-    }
-    else {
-        playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(IDLE));
-        playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(IDLE_MASK));
-    }
-    HDC hmemDC = CreateCompatibleDC(hDC);
-    HBITMAP oldBitmap;
-    BITMAP bmp;
-    GetObject(playerBitmaps, sizeof(BITMAP), &bmp);
-
-    if (g_player.face == "left") {
-        oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmapsMask);
-        StretchBlt(hDC, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCAND);
-        oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmaps);
-        StretchBlt(hDC, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCPAINT);
-        SelectObject(hmemDC, oldBitmap);
-    }
-    else if (g_player.face == "right") {
-        oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmapsMask);
-        StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCAND);
-        oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmaps);
-        StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCPAINT);
-        SelectObject(hmemDC, oldBitmap);
-    }
-
-    DeleteDC(hmemDC);
-    DeleteObject(playerBitmaps);
-    DeleteObject(playerBitmapsMask);
-}
-
-void ApplyGravity() {
-    if (g_player.dy < 20) {
-        g_player.dy += GRAVITY; // 중력 적용
-    }
-}
-
-bool IsColliding(int x, int y) {
-    int gridX = x / GRID;
-    int gridY = y / GRID;
-
-    if (gridX < 0 || gridX >= MAP_WIDTH || gridY < 0 || gridY >= MAP_HEIGHT) {
-        return true;
-    }
-
-    if (map0[gridY][gridX] == 0) {
-        return true;
-    }
-
-    return false;
-}
-
-bool IsSlopeGoRightColliding(int x, int y) {
-    int leftX = (x - PLAYER_SIZE / 2) / GRID;
-    int rightX = (x + PLAYER_SIZE / 2 - 1) / GRID;
-    int topY = (y - PLAYER_SIZE / 2) / GRID;
-    int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
-
-    // 충돌 감지
-    if (map0[bottomY][leftX] == 2 || map0[bottomY][rightX] == 2) {
-        g_player.slip = true;
-        return true;
-    }
-
-    return false;
-}
-
-bool IsSlopeGoLeftColliding(int x, int y) {
-    int leftX = (x - PLAYER_SIZE / 2) / GRID;
-    int rightX = (x + PLAYER_SIZE / 2 - 1) / GRID;
-    int topY = (y - PLAYER_SIZE / 2) / GRID;
-    int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
-
-    // 충돌 감지
-    if (map0[bottomY][leftX] == 3 || map0[bottomY][rightX] == 3) {
-        g_player.slip = true;
-        return true;
-    }
-
-    return false;
-}
-
-// 아이템
-void GenerateItem(int x, int y, int num) {
-    Item newItem;
-    newItem.x = x;
-    newItem.y = y;
-    g_items.push_back(newItem);
-}
-
-void DrawItems(HDC hdc) {
-    for (const auto& item : g_items) {
-        HBRUSH hBrush1 = CreateSolidBrush(RGB(255, 255, 255));
-        SelectObject(hdc, hBrush1);
-        Rectangle(hdc, item.x * GRID, item.y * GRID, (item.x + 1) * GRID, (item.y + 1) * GRID); // 아이템 그리기
-        DeleteObject(hBrush1);
-    }
-}
-
-// 적
-void InitEnemy() {
-    for (int y = 0; y < MAP_HEIGHT; y++) {
-        for (int x = 0; x < MAP_WIDTH; x++) {
-            if (map0[y][x] == 4) {  // 적
-                GenerateEnemy(x, y);
-            }
-        }
-    }
-}
-
-void GenerateEnemy(int x, int y) {
-    Enemy newEnemy;
-    newEnemy.x = x;
-    newEnemy.y = y;
-    g_enemies.push_back(newEnemy);
-}
-
-void DrawEnemies(HDC hdc) {
-    for (const auto& enemy : g_enemies) {
-        HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 0));
-        SelectObject(hdc, hBrush);
-        Rectangle(hdc, enemy.x * GRID, enemy.y * GRID, (enemy.x + 1) * GRID, (enemy.y + 1) * GRID);
-        DeleteObject(hBrush);
     }
 }
 
@@ -781,7 +598,6 @@ void ShootBullet() {
         g_bullets.push_back(newBullet);
     }
 }
-
 
 void MoveBullets() {
     for (auto it = g_bullets.begin(); it != g_bullets.end();) {
