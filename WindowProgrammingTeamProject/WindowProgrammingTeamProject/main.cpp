@@ -3,6 +3,7 @@
 #include <time.h>
 #include <math.h>
 #include <string>
+#include <atlImage.h>
 #include "resource.h"
 
 const int WINDOW_WIDTH = 600;
@@ -92,18 +93,17 @@ vector<Bullet> g_bullets;
 
 void ProcessKeyboardDown(WPARAM wParam);
 void ProcessKeyboardUp(WPARAM wParam);
-void DrawMap(HDC hdc, HBRUSH hBlackBrush, HBRUSH hWhiteBrush, HBRUSH hRedBrush);
+void DrawBg(HDC hDC, CImage Snowbg);
+void DrawSnowTile(HDC hDC, CImage tile);
 void InitPlayer();
 void MovePlayer();
-void DrawPlayer(HDC hDC);
-void drawSprite(HDC hDC, const int& x, const int& y, const int& width, const int& height);
-
+void DrawSprite(HDC hDC, const int& x, const int& y, const int& width, const int& height);
 void ApplyGravity();
 bool IsColliding(int x, int y);
 bool IsSlopeGoRightColliding(int x, int y);
 bool IsSlopeGoLeftColliding(int x, int y);
 void GenerateItem(int x, int y, int num);
-void DrawItems(HDC hdc);
+void DrawItems(HDC hDC);
 void InitEnemy();
 void GenerateEnemy(int x, int y);
 void DrawEnemies(HDC hDC);
@@ -156,7 +156,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     HDC mDC;
     HBITMAP hBitmap;
     RECT rt;
-    static HBRUSH hBlackBrush, hWhiteBrush, hRedBrush;
 
     static int shootInterval = 0;
 
@@ -165,13 +164,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     static int spriteWidth = 30;
     static int spriteHeight = 0;
 
+    CImage Snowtile; Snowtile.Load(L"snowtile.png");
+    CImage Snowbg; Snowbg.Load(L"SnowBg.png");
     switch (message) {
     case WM_CREATE:
         InitPlayer();
         InitEnemy();
-        hBlackBrush = CreateSolidBrush(RGB(0, 0, 0));
-        hWhiteBrush = CreateSolidBrush(RGB(255, 255, 255));
-        hRedBrush = CreateSolidBrush(RGB(255, 0, 0));
         SetTimer(hWnd, 1, 1000 / 60, NULL);
         SetTimer(hWnd, 2, 150, NULL);
         break;
@@ -259,11 +257,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         SelectObject(mDC, (HBITMAP)hBitmap);
 
         //--- 모든 그리기를 메모리 DC에한다.
-        DrawMap(mDC, hBlackBrush, hWhiteBrush, hRedBrush);
+        DrawBg(mDC, Snowbg);
+        DrawSnowTile(mDC, Snowtile);
         DrawEnemies(mDC);
         DrawBullets(mDC);
-        drawSprite(mDC, spriteX, spriteY, spriteWidth, spriteHeight);
-        //DrawPlayer(mDC);
+        DrawSprite(mDC, spriteX, spriteY, spriteWidth, spriteHeight);
         // 메모리 DC에서 화면 DC로 그림을 복사
         // #1 맵 전체를 그리기
         // BitBlt(hDC, 0, 0, BOARD_WIDTH, BOARD_HEIGHT, mDC, 0, 0, SRCCOPY);
@@ -297,9 +295,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         InvalidateRect(hWnd, NULL, FALSE);
         break;
     case WM_DESTROY:
-        DeleteObject(hBlackBrush);
-        DeleteObject(hWhiteBrush);
-        DeleteObject(hRedBrush);
+        Snowtile.Destroy();
+        Snowbg.Destroy();
         PostQuitMessage(0);
         break;
     default:
@@ -352,46 +349,28 @@ void ProcessKeyboardUp(WPARAM wParam) {
 }
 
 // 맵
-void DrawMap(HDC hdc, HBRUSH hBlackBrush, HBRUSH hWhiteBrush, HBRUSH hRedBrush) {
+void DrawSnowTile(HDC hDC, CImage tile) {
+    // 칸당 96x96
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
-            // 현재 맵의 값이 1이면 흰색(플레이어 영역), 0이면 검은색으로 그립니다.
             if (map0[y][x] == 0) {
-                // 검은색
-                /*SelectObject(hdc, hBlackBrush);
-                Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);*/
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 8, 0, 96, 96);
             }
-            else if (map0[y][x] == 1) {
-                // 흰색
-                SelectObject(hdc, hWhiteBrush);
-                Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
+            /*else if (map0[y][x] == 1) {
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 96, 96, 96);
+            }*/
+            else if (map0[y][x] == 2) { // 오른쪽 아래로
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 4, 0, 96, 96);
             }
-            else if (map0[y][x] == 2) {  // 오른쪽 아래로 흘러내리는 빗면
-                // 검은색
-                POINT point[3];
-                point[0].x = x * GRID;
-                point[0].y = y * GRID;
-                point[1].x = x * GRID;
-                point[1].y = (y + 1) * GRID;
-                point[2].x = (x + 1) * GRID;
-                point[2].y = (y + 1) * GRID;
-                SelectObject(hdc, hRedBrush);
-                Polygon(hdc, point, 3);
-            }
-            else if (map0[y][x] == 3) {  // 왼쪽 아래로 흘러내리는 빗면
-                // 검은색
-                POINT point[3];
-                point[0].x = (x + 1) * GRID;
-                point[0].y = y * GRID;
-                point[1].x = x * GRID;
-                point[1].y = (y + 1) * GRID;
-                point[2].x = (x + 1) * GRID;
-                point[2].y = (y + 1) * GRID;
-                SelectObject(hdc, hRedBrush);
-                Polygon(hdc, point, 3);
+            else if (map0[y][x] == 3) { // 왼쪽 아래로
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 3, 0, 96, 96);
             }
         }
     }
+}
+
+void DrawBg(HDC hDC, CImage Snowbg) {
+    Snowbg.StretchBlt(hDC, -GRID / 2, 0, BOARD_WIDTH, BOARD_HEIGHT, SRCCOPY);
 }
 
 // 플레이어
@@ -463,14 +442,7 @@ void MovePlayer() {
     }
 }
 
-void DrawPlayer(HDC hdc) {
-    HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
-    SelectObject(hdc, hBrush);
-    Rectangle(hdc, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, g_player.x + PLAYER_SIZE / 2, g_player.y + PLAYER_SIZE / 2);
-    DeleteObject(hBrush);
-}
-
-void drawSprite(HDC hDC, const int& x, const int& y, const int& width, const int& height) {
+void DrawSprite(HDC hDC, const int& x, const int& y, const int& width, const int& height) {
     HBITMAP spriteSheet = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE));
     HBITMAP spriteSheetMask = LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE_MASK));
     HDC hmemDC = CreateCompatibleDC(hDC);

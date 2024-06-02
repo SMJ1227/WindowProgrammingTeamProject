@@ -20,14 +20,16 @@
 #define CHARGE2                         117
 #define CHARGE2_MASK                    118
 #define MOVE2_MASK                      119
-#define PLAYER_SPRITE                     120
-#define PLAYER_SPRITE_MASK                    121
+#define PLAYER_SPRITE                   120
+#define PLAYER_SPRITE_MASK              121
+#define IDB_PNG2                        122
+#define IDB_PNG3                        123
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        122
+#define _APS_NEXT_RESOURCE_VALUE        124
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
