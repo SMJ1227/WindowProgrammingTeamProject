@@ -203,7 +203,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     switch (message) {
     case WM_CREATE:
         InitPlayer();
-        InitMap(map, map1);
+        InitMap(map, map0);
         InitEnemy(map);
         
         hBlackBrush = CreateSolidBrush(RGB(0, 0, 0));
@@ -283,7 +283,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         SelectObject(mDC, (HBITMAP)hBitmap);
 
         //--- 모든 그리기를 메모리 DC에한다.
-        DrawMap(mDC, map1, hBlackBrush, hWhiteBrush, hRedBrush);
+        DrawMap(mDC, map, hBlackBrush, hWhiteBrush, hRedBrush);
         DrawEnemies(mDC);
         DrawBullets(mDC);
         drawSprite(mDC, spriteX, spriteY, spriteWidth, spriteHeight);
