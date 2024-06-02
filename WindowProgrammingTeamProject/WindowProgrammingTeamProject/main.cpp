@@ -29,8 +29,8 @@ int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0},
-    {0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 3, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 0},
     {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
@@ -65,7 +65,8 @@ struct Player {
     int dx, dy;
     int jumpSpeed;
     bool isCharging;
-    bool isSlooping;
+    bool isJumping;
+    bool isSliding;
     bool slip; // 미끄러지는 동안 계속 true
     string face;// face: left, right  
 
@@ -91,28 +92,29 @@ vector<Bullet> g_bullets;
 
 void ProcessKeyboardDown(WPARAM wParam);
 void ProcessKeyboardUp(WPARAM wParam);
-void DrawMap(HDC hdc);
+void DrawMap(HDC hdc, HBRUSH hBlackBrush, HBRUSH hWhiteBrush, HBRUSH hRedBrush);
 void InitPlayer();
 void MovePlayer();
 void DrawPlayer(HDC hDC);
-void drawPlayerSprite(HDC hDC, HBITMAP playerBitmaps, HBITMAP playerBitmapsMask);
+void drawSprite(HDC hDC, const int& x, const int& y, const int& width, const int& height);
+
 void ApplyGravity();
 bool IsColliding(int x, int y);
 bool IsSlopeGoRightColliding(int x, int y);
 bool IsSlopeGoLeftColliding(int x, int y);
 void GenerateItem(int x, int y, int num);
 void DrawItems(HDC hdc);
+void InitEnemy();
 void GenerateEnemy(int x, int y);
 void DrawEnemies(HDC hDC);
-
 void ShootBullet();
 void MoveBullets();
 void DrawBullets(HDC hDC);
-
 void CheckCollisions();
 void CheckEnemyPlayerCollisions();
 void CheckItemPlayerCollisions();
 void CheckPlayerBulletCollisions();
+
 
 // WinMain 함수
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow) {
@@ -155,14 +157,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     HDC mDC;
     HBITMAP hBitmap;
     RECT rt;
-    static HBITMAP playerBitmaps, playerBitmapsMask; // 플레이어 비트맵 이미지, 비트맵 마스크 이미지 로드
+    static HBRUSH hBlackBrush, hWhiteBrush, hRedBrush;
 
     static int shootInterval = 0;
+
+    static int spriteX = 0;
+    static int spriteY = 0;
+    static int spriteWidth = 30;
+    static int spriteHeight = 0;
 
     switch (message) {
     case WM_CREATE:
         InitPlayer();
+        InitEnemy();
+        hBlackBrush = CreateSolidBrush(RGB(0, 0, 0));
+        hWhiteBrush = CreateSolidBrush(RGB(255, 255, 255));
+        hRedBrush = CreateSolidBrush(RGB(255, 0, 0));
         SetTimer(hWnd, 1, 1000 / 60, NULL);
+        SetTimer(hWnd, 2, 150, NULL);
         break;
     case WM_COMMAND:
         switch (LOWORD(wParam)) {}
@@ -189,6 +201,54 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             }
             CheckCollisions();
             break;
+        case 2:
+            if (g_player.dx < 0) g_player.face = "left";
+            else if (g_player.dx > 0) g_player.face = "right";
+            if (g_player.dy == 0 && g_player.jumpSpeed == 0 && g_player.dx != 0) {
+                if ((spriteX += spriteWidth) > 230) {
+                    spriteX = 0;
+                }
+                spriteY = 24;
+                spriteHeight = 24;
+
+            }
+            else if (g_player.dy == 0 && g_player.jumpSpeed < 0) {
+                spriteX = 0;
+                spriteY = 116;
+                spriteHeight = 22;
+                if (g_player.jumpSpeed == -20) {
+                    spriteX = 30;
+                }
+            }
+            else if (g_player.dy < 0) {
+                if ((spriteX += spriteWidth) > 119) {
+                    spriteX = 0;
+                }
+                spriteY = 48;
+                spriteHeight = 29;
+            }
+            else if (g_player.dy > 0 && g_player.isSliding == false) {
+                if ((spriteX += spriteWidth) > 59) {
+                    spriteX = 0;
+                }
+                spriteY = 77;
+                spriteHeight = 39;
+            }
+            else if (g_player.dy > 0 && g_player.isSliding == true) {
+                if ((spriteX += spriteWidth) > 29) {
+                    spriteX = 0;
+                }
+                spriteY = 138;
+                spriteHeight = 25;
+            }
+            else {
+                if ((spriteX += spriteWidth) > 230) {
+                    spriteX = 0;
+                }
+                spriteY = 0;
+                spriteHeight = 24;                
+            }
+            break;
         }
         InvalidateRect(hWnd, NULL, FALSE);
         break;
@@ -200,10 +260,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         SelectObject(mDC, (HBITMAP)hBitmap);
 
         //--- 모든 그리기를 메모리 DC에한다.
-        DrawMap(mDC);
+        DrawMap(mDC, hBlackBrush, hWhiteBrush, hRedBrush);
         DrawEnemies(mDC);
         DrawBullets(mDC);
-        drawPlayerSprite(mDC, playerBitmaps, playerBitmapsMask);
+        drawSprite(mDC, spriteX, spriteY, spriteWidth, spriteHeight);
         //DrawPlayer(mDC);
         // 메모리 DC에서 화면 DC로 그림을 복사
         // #1 맵 전체를 그리기
@@ -238,6 +298,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         InvalidateRect(hWnd, NULL, FALSE);
         break;
     case WM_DESTROY:
+        DeleteObject(hBlackBrush);
+        DeleteObject(hWhiteBrush);
+        DeleteObject(hRedBrush);
         PostQuitMessage(0);
         break;
     default:
@@ -248,20 +311,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 // 키입력
 void ProcessKeyboardDown(WPARAM wParam) {
+    if (g_player.isSliding) return; // 미끄러지는 동안 입력 무시
     switch (wParam) {
     case VK_LEFT:
         if (g_player.isCharging)break;
-        if (g_player.isSlooping)break;
         g_player.dx = -3;
         g_player.face = "left";
         break;
     case VK_RIGHT:
         if (g_player.isCharging)break;
-        if (g_player.isSlooping)break;
         g_player.dx = 3;
         g_player.face = "right";
         break;
     case VK_SPACE:
+        if (g_player.isJumping)break;
         if (g_player.dy == 0 && g_player.jumpSpeed > -20) { // 바닥에 닿아 있을 때만 점프 가능
             g_player.isCharging = true;
             g_player.dx = 0;
@@ -272,38 +335,37 @@ void ProcessKeyboardDown(WPARAM wParam) {
 }
 
 void ProcessKeyboardUp(WPARAM wParam) {
+    if (g_player.isSliding) return; // 미끄러지는 동안 입력 무시
     switch (wParam) {
     case VK_LEFT:
     case VK_RIGHT:
-        if (g_player.isSlooping)break;
+        if (g_player.isSliding)break;
         g_player.dx = 0;
         break;
     case VK_SPACE:
+        if (g_player.isJumping)break;
         g_player.dy = g_player.jumpSpeed;
         g_player.jumpSpeed = 0;
         g_player.isCharging = false;
+        g_player.isJumping = true;
         break;
     }
 }
 
 // 맵
-void DrawMap(HDC hdc) {
+void DrawMap(HDC hdc, HBRUSH hBlackBrush, HBRUSH hWhiteBrush, HBRUSH hRedBrush) {
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
             // 현재 맵의 값이 1이면 흰색(플레이어 영역), 0이면 검은색으로 그립니다.
             if (map0[y][x] == 0) {
                 // 검은색
-                HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 0));
-                SelectObject(hdc, hBrush);
-                Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
-                DeleteObject(hBrush);
+                /*SelectObject(hdc, hBlackBrush);
+                Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);*/
             }
             else if (map0[y][x] == 1) {
                 // 흰색
-                HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
-                SelectObject(hdc, hBrush);
+                SelectObject(hdc, hWhiteBrush);
                 Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
-                DeleteObject(hBrush);
             }
             else if (map0[y][x] == 2) {  // 오른쪽 아래로 흘러내리는 빗면
                 // 검은색
@@ -314,10 +376,8 @@ void DrawMap(HDC hdc) {
                 point[1].y = (y + 1) * GRID;
                 point[2].x = (x + 1) * GRID;
                 point[2].y = (y + 1) * GRID;
-                HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
-                SelectObject(hdc, hBrush);
+                SelectObject(hdc, hRedBrush);
                 Polygon(hdc, point, 3);
-                DeleteObject(hBrush);
             }
             else if (map0[y][x] == 3) {  // 왼쪽 아래로 흘러내리는 빗면
                 // 검은색
@@ -328,13 +388,8 @@ void DrawMap(HDC hdc) {
                 point[1].y = (y + 1) * GRID;
                 point[2].x = (x + 1) * GRID;
                 point[2].y = (y + 1) * GRID;
-                HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
-                SelectObject(hdc, hBrush);
+                SelectObject(hdc, hRedBrush);
                 Polygon(hdc, point, 3);
-                DeleteObject(hBrush);
-            }
-            else if (map0[y][x] == 4) {  // 적
-                GenerateEnemy(x, y);
             }
         }
     }
@@ -348,6 +403,7 @@ void InitPlayer() {
     g_player.dy = 0;
     g_player.jumpSpeed = 0;
     g_player.isCharging = false;
+    g_player.isJumping = false;
     g_player.face = "left";
 }
 
@@ -357,10 +413,13 @@ void MovePlayer() {
 
     bool isVerticalCollision = IsColliding(g_player.x, newY);
     bool isHorizontalCollision = IsColliding(newX, g_player.y);
+    bool isSlopeGoRightCollision = IsSlopeGoRightColliding(g_player.x, g_player.y);
+    bool isSlopeGoLeftCollision = IsSlopeGoLeftColliding(g_player.x, g_player.y);
 
     // 수직 충돌 처리
     if (!isVerticalCollision) {
         g_player.y = newY;
+        g_player.isJumping = true;
     }
     else {
         // 바닥 충돌 시 y축 위치 보정
@@ -370,6 +429,8 @@ void MovePlayer() {
             }
         }
         g_player.dy = 0; // 충돌 후 y축 속도 초기화
+        g_player.isJumping = false;
+        g_player.isSliding = false;
     }
 
     // 수평 충돌 처리
@@ -379,9 +440,9 @@ void MovePlayer() {
     else {
         g_player.dx = 0; // 충돌 후 x축 속도 초기화
     }
-    bool isSlopeGoRighCollision = IsSlopeGoRightColliding(g_player.x, g_player.y);
-    if (isSlopeGoRighCollision) {
-        g_player.isSlooping = true;
+
+    if (isSlopeGoRightCollision) {
+        g_player.isSliding = true;
 
         g_player.dy = 1; // 경사면 위에서 미끄러짐 속도
         g_player.dx = 2; // 오른쪽 아래로 미끄러짐
@@ -390,12 +451,9 @@ void MovePlayer() {
         g_player.x = newX;
         g_player.y = newY;
     }
-    else {
-        g_player.isSlooping = false;
-    }
-    bool isSlopeGoLeftCollision = IsSlopeGoLeftColliding(g_player.x, g_player.y);
+
     if (isSlopeGoLeftCollision) {
-        g_player.isSlooping = true;
+        g_player.isSliding = true;
 
         g_player.dy = 1; // 경사면 위에서 미끄러짐 속도
         g_player.dx = -2; // 오른쪽 아래로 미끄러짐
@@ -403,9 +461,6 @@ void MovePlayer() {
         newY = g_player.y + g_player.dy;
         g_player.x = newX;
         g_player.y = newY;
-    }
-    else {
-        g_player.isSlooping = false;
     }
 }
 
@@ -416,61 +471,27 @@ void DrawPlayer(HDC hdc) {
     DeleteObject(hBrush);
 }
 
-// 비트맵 메모리DC로 복사
-void drawPlayerSprite(HDC hDC, HBITMAP playerBitmaps, HBITMAP playerBitmapsMask) {
-    if (g_player.dy == 0 && g_player.jumpSpeed == 0 && g_player.dx != 0) {
-        playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(MOVE1));
-        playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(MOVE1_MASK));
-    }
-    else if (g_player.dy < 0) {
-        playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(JUMP));
-        playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(JUMP_MASK));
-    }
-    else if (IsSlopeGoRightColliding(g_player.x, g_player.y) || IsSlopeGoLeftColliding(g_player.x, g_player.y)) {
-        playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(SLIP2));
-        playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(SLIP2_MASK));
-    }
-    else if (g_player.dy > 0) {
-        playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(FALL));
-        playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(FALL_MASK));
-    }
-    else if (g_player.dy == 0 && g_player.jumpSpeed < 0) {
-        if (g_player.jumpSpeed == -20) {
-            playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(CHARGE1));
-            playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(CHARGE1_MASK));
-        }
-        else {
-            playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(CHARGE2));
-            playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(CHARGE2_MASK));
-        }
-    }
-    else {
-        playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(IDLE));
-        playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(IDLE_MASK));
-    }
+void drawSprite(HDC hDC, const int& x, const int& y, const int& width, const int& height) {
+    HBITMAP spriteSheet = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE));
+    HBITMAP spriteSheetMask = LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE_MASK));
     HDC hmemDC = CreateCompatibleDC(hDC);
-    HBITMAP oldBitmap;
-    BITMAP bmp;
-    GetObject(playerBitmaps, sizeof(BITMAP), &bmp);
-
+    HBITMAP oldBitmap = (HBITMAP)SelectObject(hmemDC, spriteSheetMask);
     if (g_player.face == "left") {
-        oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmapsMask);
-        StretchBlt(hDC, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCAND);
-        oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmaps);
-        StretchBlt(hDC, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCPAINT);
+        StretchBlt(hDC, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE, hmemDC, x, y, width, height, SRCAND);
+        oldBitmap = (HBITMAP)SelectObject(hmemDC, spriteSheet);
+        StretchBlt(hDC, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE, hmemDC, x, y, width, height, SRCPAINT);
         SelectObject(hmemDC, oldBitmap);
     }
     else if (g_player.face == "right") {
-        oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmapsMask);
-        StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCAND);
-        oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmaps);
-        StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCPAINT);
+        StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, x, y, width, height, SRCAND);
+        oldBitmap = (HBITMAP)SelectObject(hmemDC, spriteSheet);
+        StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, x, y, width, height, SRCPAINT);
         SelectObject(hmemDC, oldBitmap);
     }
-
     DeleteDC(hmemDC);
-    DeleteObject(playerBitmaps);
-    DeleteObject(playerBitmapsMask);
+    DeleteObject(oldBitmap);
+    DeleteObject(spriteSheet);
+    DeleteObject(spriteSheetMask);
 }
 
 void ApplyGravity() {
@@ -480,19 +501,14 @@ void ApplyGravity() {
 }
 
 bool IsColliding(int x, int y) {
-    int leftX = (x - PLAYER_SIZE / 2) / GRID;
-    int rightX = (x + PLAYER_SIZE / 2 - 1) / GRID;
-    int topY = (y - PLAYER_SIZE / 2) / GRID;
-    int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
+    int gridX = x / GRID;
+    int gridY = y / GRID;
 
-    // 맵 경계를 벗어나지 않도록 체크
-    if (leftX < 0 || rightX >= MAP_WIDTH || topY < 0 || bottomY >= MAP_HEIGHT) {
+    if (gridX < 0 || gridX >= MAP_WIDTH || gridY < 0 || gridY >= MAP_HEIGHT) {
         return true;
     }
 
-    // 충돌 감지
-    if (map0[topY][leftX] == 0 || map0[topY][rightX] == 0 ||
-        map0[bottomY][leftX] == 0 || map0[bottomY][rightX] == 0) {
+    if (map0[gridY][gridX] == 0) {
         return true;
     }
 
@@ -547,6 +563,16 @@ void DrawItems(HDC hdc) {
 }
 
 // 적
+void InitEnemy() {
+    for (int y = 0; y < MAP_HEIGHT; y++) {
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            if (map0[y][x] == 4) {  // 적
+                GenerateEnemy(x, y);
+            }
+        }
+    }
+}
+
 void GenerateEnemy(int x, int y) {
     Enemy newEnemy;
     newEnemy.x = x;
@@ -603,13 +629,31 @@ void DrawBullets(HDC hdc) {
 void CheckCollisions() {
     CheckItemPlayerCollisions();
     CheckPlayerBulletCollisions();
+    CheckEnemyPlayerCollisions();
 }
+
+void CheckEnemyPlayerCollisions() {
+    for (auto it = g_enemies.begin(); it != g_enemies.end(); ) {
+        if (g_player.x >= it->x * GRID && g_player.x <= (it->x + 1) * GRID &&
+            g_player.y >= it->y * GRID && g_player.y <= (it->y + 1) * GRID) {
+            g_player.dx = 4;
+            g_player.isCharging = false;
+            g_player.jumpSpeed = 0;
+            ++it; // 충돌 시 반복자를 증가시킵니다.
+        }
+        else {
+            ++it; // 충돌이 발생하지 않았을 때도 반복자를 증가시킵니다.
+        }
+    }
+}
+
 
 void CheckItemPlayerCollisions() {
     for (auto it = g_items.begin(); it != g_items.end(); ) {
         if (it->x >= g_player.x - PLAYER_SIZE / 2 && it->x <= g_player.x + PLAYER_SIZE / 2 &&
             it->y >= g_player.y - PLAYER_SIZE / 2 && it->y <= g_player.y + PLAYER_SIZE / 2) {
-            it = g_items.erase(it); // 아이템과 충돌 시 제거
+            // 아이템과 충돌 시 제거
+            it = g_items.erase(it);
         }
         else {
             ++it;
@@ -621,9 +665,12 @@ void CheckPlayerBulletCollisions() {
     for (auto it = g_bullets.begin(); it != g_bullets.end(); ) {
         if (it->x >= g_player.x - PLAYER_SIZE / 2 && it->x <= g_player.x + PLAYER_SIZE / 2 &&
             it->y >= g_player.y - PLAYER_SIZE / 2 && it->y <= g_player.y + PLAYER_SIZE / 2) {
+            // 플레이어를 뒤로 밀침
+            g_player.dx = it->dx * 2;
+            g_player.isCharging = false;
+            g_player.jumpSpeed = 0;
             // 플레이어와 충돌 시 제거
             it = g_bullets.erase(it);
-            // 플레이어를 뒤로 밀침
 
         }
         else {
