@@ -136,6 +136,7 @@
     <ResourceCompile Include="WindowProgrammingTeamProject.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Cannon.png" />
     <Image Include="pCharge1.bmp" />
     <Image Include="pCharge1_mask.bmp" />
     <Image Include="pCharge2.bmp" />

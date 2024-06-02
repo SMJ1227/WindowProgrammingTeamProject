@@ -60,7 +60,7 @@ int tile0[MAP_HEIGHT][MAP_WIDTH] = {
     {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
     {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
     {4, 0, 0, 1, 0, 0, 0, 0, 0, 0, 10, 6},
-    {4, 0, 0, 4, 12, 0, 0, 0, 0, 10, 2, 6},
+    {4, 0, 0, 4, 12, 0, 0, 0, 0, 10, 11, 6},
     {4, 0, 0, 4, 13, 3, 0, 0, 0, 7, 8, 6},
     {4, 0, 0, 4,  5, 13, 12, 0, 0, 0, 0, 6},
     {4, 0, 0, 4,  5,  5, 13, 3, 0, 0, 0, 6},
@@ -140,7 +140,7 @@ void GenerateItem(int x, int y, int num);
 void DrawItems(HDC hDC);
 void InitEnemy();
 void GenerateEnemy(int x, int y);
-void DrawEnemies(HDC hDC);
+void DrawEnemies(HDC hDC, CImage cannon);
 void ShootBullet();
 void MoveBullets();
 void DrawBullets(HDC hDC);
@@ -200,6 +200,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
     CImage Snowtile; Snowtile.Load(L"snowtile.png");
     CImage Snowbg; Snowbg.Load(L"SnowBg.png");
+    CImage cannon; cannon.Load(L"Cannon.png");
     switch (message) {
     case WM_CREATE:
         InitPlayer();
@@ -293,7 +294,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         //--- 모든 그리기를 메모리 DC에한다.
         DrawBg(mDC, Snowbg);
         DrawSnowTile(mDC, Snowtile);
-        DrawEnemies(mDC);
+        DrawEnemies(mDC, cannon);
         DrawBullets(mDC);
         DrawSprite(mDC, spriteX, spriteY, spriteWidth, spriteHeight);
         // 메모리 DC에서 화면 DC로 그림을 복사
@@ -331,6 +332,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     case WM_DESTROY:
         Snowtile.Destroy();
         Snowbg.Destroy();
+        cannon.Destroy();
         PostQuitMessage(0);
         break;
     default:
@@ -630,19 +632,16 @@ void GenerateEnemy(int x, int y) {
     g_enemies.push_back(newEnemy);
 }
 
-void DrawEnemies(HDC hdc) {
+void DrawEnemies(HDC hDC, CImage cannon) {
     for (const auto& enemy : g_enemies) {
-        HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 0));
-        SelectObject(hdc, hBrush);
-        Rectangle(hdc, enemy.x * GRID, enemy.y * GRID, (enemy.x + 1) * GRID, (enemy.y + 1) * GRID);
-        DeleteObject(hBrush);
+        cannon.StretchBlt(hDC, enemy.x * GRID, enemy.y * GRID, GRID, GRID, SRCCOPY);
     }
 }
 
 void ShootBullet() {
     for (const auto& enemy : g_enemies) {
         Bullet newBullet;
-        newBullet.x = enemy.x * GRID; // 적의 위치에서 총알이 나가도록 설정
+        newBullet.x = (enemy.x + 1) * GRID; // 적의 위치에서 총알이 나가도록 설정
         newBullet.y = enemy.y * GRID + GRID / 2;
         newBullet.dx = 2;
         newBullet.dy = 0;
