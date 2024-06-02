@@ -26,16 +26,16 @@ int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 3, 0},
-    {0, 1, 1, 1, 2, 1, 1, 1, 1, 3, 1, 0},
-    {0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 0, 2, 1, 1, 1, 1, 3, 0, 0},
+    {0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0},
+    {0, 1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 0},
+    {0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0},
+    {0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0},
     {0, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 3, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 0},
-    {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 3, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
@@ -50,6 +50,40 @@ int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 0, 0, 2, 1, 1, 1, 1, 1, 3, 0, 0},
     {0, 4, 0, 0, 2, 1, 1, 1, 3, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+};
+int tile_num = 0;
+int tile0[MAP_HEIGHT][MAP_WIDTH] = {
+    {1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 14, 15, 16, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 1, 0, 0, 0, 0, 0, 0, 10, 6},
+    {4, 0, 0, 4, 12, 0, 0, 0, 0, 10, 2, 6},
+    {4, 0, 0, 4, 13, 3, 0, 0, 0, 7, 8, 6},
+    {4, 0, 0, 4,  5, 13, 12, 0, 0, 0, 0, 6},
+    {4, 0, 0, 4,  5,  5, 13, 3, 0, 0, 0, 6},
+    {4, 0, 0, 7,  8,  8,  8, 9, 0, 0, 0, 6},
+    {4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 14, 15, 15, 16, 0, 15, 0, 0, 0, 10, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 15, 0, 11, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 15, 0, 15, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 15, 0, 0, 0, 0, 15, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 13, 12, 0, 0, 0, 0, 15, 0, 0, 10, 6},
+    {4, 5, 13, 12, 0, 0, 0, 0, 0, 10, 11, 6},
+    {4, 0, 5, 13, 12, 0, 0, 0, 10, 11, 5, 6},
+    {17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17},
 };
 
 using namespace std;
@@ -353,21 +387,66 @@ void DrawSnowTile(HDC hDC, CImage tile) {
     // 칸당 96x96
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
-            if (map0[y][x] == 0) {
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 8, 0, 96, 96);
-            }
-            /*else if (map0[y][x] == 1) {
+            int tileType = tile0[y][x];
+            switch (tileType) {
+            case 1:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 0, 96, 96);
+                continue;
+            case 2:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 0, 96, 96);
+                continue;
+            case 3:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 2, 0, 96, 96);
+                continue;
+            case 4:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 96, 96, 96);
+                continue;
+            case 5:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 96, 96, 96);
-            }*/
-            else if (map0[y][x] == 2) { // 오른쪽 아래로
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 4, 0, 96, 96);
-            }
-            else if (map0[y][x] == 3) { // 왼쪽 아래로
+                continue;
+            case 6:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 2, 96, 96, 96);
+                continue;
+            case 7:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 96 * 2, 96, 96);
+                continue;
+            case 8:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 96 * 2, 96, 96);
+                continue;
+            case 9:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 2, 96 * 2, 96, 96);
+                continue;
+            case 10:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 3, 0, 96, 96);
+                continue;
+            case 11:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 3, 96, 96, 96);
+                continue;
+            case 12:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 4, 0, 96, 96);
+                continue;
+            case 13:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 4, 96, 96, 96);
+                continue;
+            case 14:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID * 2, 96 * 5, 0, 96, 96);
+                continue;
+            case 15:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID * 2, 96 * 6, 0, 96, 96);
+                continue;
+            case 16:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID * 2, 96 * 7, 0, 96, 96);
+                continue;
+            case 17:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 8, 0, 96, 96);
+                continue;
+            default:
+                break;
             }
         }
     }
 }
+
 
 void DrawBg(HDC hDC, CImage Snowbg) {
     Snowbg.StretchBlt(hDC, -GRID / 2, 0, BOARD_WIDTH, BOARD_HEIGHT, SRCCOPY);
