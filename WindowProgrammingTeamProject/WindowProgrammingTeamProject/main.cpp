@@ -96,7 +96,8 @@ void DrawMap(HDC hdc, HBRUSH hBlackBrush, HBRUSH hWhiteBrush, HBRUSH hRedBrush);
 void InitPlayer();
 void MovePlayer();
 void DrawPlayer(HDC hDC);
-void drawPlayerSprite(HDC hDC, HBITMAP playerBitmaps, HBITMAP playerBitmapsMask);
+void drawSprite(HDC hDC, const int& x, const int& y, const int& width, const int& height);
+
 void ApplyGravity();
 bool IsColliding(int x, int y);
 bool IsSlopeGoRightColliding(int x, int y);
@@ -157,9 +158,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     RECT rt;
     static HBRUSH hBlackBrush, hWhiteBrush, hRedBrush;
 
-    static HBITMAP playerBitmaps, playerBitmapsMask; // 플레이어 비트맵 이미지, 비트맵 마스크 이미지 로드
-
     static int shootInterval = 0;
+
+    static int spriteX = 0;
+    static int spriteY = 0;
+    static int spriteWidth = 30;
+    static int spriteHeight = 0;
 
     switch (message) {
     case WM_CREATE:
@@ -169,6 +173,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         hWhiteBrush = CreateSolidBrush(RGB(255, 255, 255));
         hRedBrush = CreateSolidBrush(RGB(255, 0, 0));
         SetTimer(hWnd, 1, 1000 / 60, NULL);
+        SetTimer(hWnd, 2, 150, NULL);
         break;
     case WM_COMMAND:
         switch (LOWORD(wParam)) {}
@@ -195,6 +200,54 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             }
             CheckCollisions();
             break;
+        case 2:
+            if (g_player.dx < 0) g_player.face = "left";
+            else if (g_player.dx > 0) g_player.face = "right";
+            if (g_player.dy == 0 && g_player.jumpSpeed == 0 && g_player.dx != 0) {
+                if ((spriteX += spriteWidth) > 230) {
+                    spriteX = 0;
+                }
+                spriteY = 24;
+                spriteHeight = 24;
+
+            }
+            else if (g_player.dy == 0 && g_player.jumpSpeed < 0) {
+                spriteX = 0;
+                spriteY = 116;
+                spriteHeight = 22;
+                if (g_player.jumpSpeed == -20) {
+                    spriteX = 30;
+                }
+            }
+            else if (g_player.dy < 0) {
+                if ((spriteX += spriteWidth) > 119) {
+                    spriteX = 0;
+                }
+                spriteY = 48;
+                spriteHeight = 29;
+            }
+            else if (g_player.dy > 0 && g_player.isSliding == false) {
+                if ((spriteX += spriteWidth) > 59) {
+                    spriteX = 0;
+                }
+                spriteY = 77;
+                spriteHeight = 39;
+            }
+            else if (g_player.dy > 0 && g_player.isSliding == true) {
+                if ((spriteX += spriteWidth) > 29) {
+                    spriteX = 0;
+                }
+                spriteY = 138;
+                spriteHeight = 25;
+            }
+            else {
+                if ((spriteX += spriteWidth) > 230) {
+                    spriteX = 0;
+                }
+                spriteY = 0;
+                spriteHeight = 24;                
+            }
+            break;
         }
         InvalidateRect(hWnd, NULL, FALSE);
         break;
@@ -209,7 +262,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         DrawMap(mDC, hBlackBrush, hWhiteBrush, hRedBrush);
         DrawEnemies(mDC);
         DrawBullets(mDC);
-        drawPlayerSprite(mDC, playerBitmaps, playerBitmapsMask);
+        drawSprite(mDC, spriteX, spriteY, spriteWidth, spriteHeight);
         //DrawPlayer(mDC);
         // 메모리 DC에서 화면 DC로 그림을 복사
         // #1 맵 전체를 그리기
@@ -417,61 +470,27 @@ void DrawPlayer(HDC hdc) {
     DeleteObject(hBrush);
 }
 
-// 비트맵 메모리DC로 복사
-void drawPlayerSprite(HDC hDC, HBITMAP playerBitmaps, HBITMAP playerBitmapsMask) {
-    if (g_player.dy == 0 && g_player.jumpSpeed == 0 && g_player.dx != 0) {
-        playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(MOVE1));
-        playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(MOVE1_MASK));
-    }
-    else if (g_player.dy < 0) {
-        playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(JUMP));
-        playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(JUMP_MASK));
-    }
-    else if (IsSlopeGoRightColliding(g_player.x, g_player.y) || IsSlopeGoLeftColliding(g_player.x, g_player.y)) {
-        playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(SLIP2));
-        playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(SLIP2_MASK));
-    }
-    else if (g_player.dy > 0) {
-        playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(FALL));
-        playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(FALL_MASK));
-    }
-    else if (g_player.dy == 0 && g_player.jumpSpeed < 0) {
-        if (g_player.jumpSpeed == -20) {
-            playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(CHARGE1));
-            playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(CHARGE1_MASK));
-        }
-        else {
-            playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(CHARGE2));
-            playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(CHARGE2_MASK));
-        }
-    }
-    else {
-        playerBitmaps = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(IDLE));
-        playerBitmapsMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(IDLE_MASK));
-    }
+void drawSprite(HDC hDC, const int& x, const int& y, const int& width, const int& height) {
+    HBITMAP spriteSheet = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE));
+    HBITMAP spriteSheetMask = LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE_MASK));
     HDC hmemDC = CreateCompatibleDC(hDC);
-    HBITMAP oldBitmap;
-    BITMAP bmp;
-    GetObject(playerBitmaps, sizeof(BITMAP), &bmp);
-
+    HBITMAP oldBitmap = (HBITMAP)SelectObject(hmemDC, spriteSheetMask);
     if (g_player.face == "left") {
-        oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmapsMask);
-        StretchBlt(hDC, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCAND);
-        oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmaps);
-        StretchBlt(hDC, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCPAINT);
+        StretchBlt(hDC, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE, hmemDC, x, y, width, height, SRCAND);
+        oldBitmap = (HBITMAP)SelectObject(hmemDC, spriteSheet);
+        StretchBlt(hDC, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE, hmemDC, x, y, width, height, SRCPAINT);
         SelectObject(hmemDC, oldBitmap);
     }
     else if (g_player.face == "right") {
-        oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmapsMask);
-        StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCAND);
-        oldBitmap = (HBITMAP)SelectObject(hmemDC, playerBitmaps);
-        StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCPAINT);
+        StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, x, y, width, height, SRCAND);
+        oldBitmap = (HBITMAP)SelectObject(hmemDC, spriteSheet);
+        StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, x, y, width, height, SRCPAINT);
         SelectObject(hmemDC, oldBitmap);
     }
-
     DeleteDC(hmemDC);
-    DeleteObject(playerBitmaps);
-    DeleteObject(playerBitmapsMask);
+    DeleteObject(oldBitmap);
+    DeleteObject(spriteSheet);
+    DeleteObject(spriteSheetMask);
 }
 
 void ApplyGravity() {
@@ -579,7 +598,6 @@ void ShootBullet() {
         g_bullets.push_back(newBullet);
     }
 }
-
 
 void MoveBullets() {
     for (auto it = g_bullets.begin(); it != g_bullets.end();) {
