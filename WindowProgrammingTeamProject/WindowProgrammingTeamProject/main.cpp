@@ -128,7 +128,7 @@ void DrawMap(HDC hdc, int map[MAP_HEIGHT][MAP_WIDTH], HBRUSH hBlackBrush, HBRUSH
 void InitPlayer();
 void MovePlayer(int map[MAP_HEIGHT][MAP_WIDTH]);
 void DrawPlayer(HDC hDC);
-void drawSprite(HDC hDC, const int& x, const int& y, const int& width, const int& height);
+void drawSprite(HDC hDC, HBITMAP sheet, HBITMAP mask, const int& x, const int& y, const int& width, const int& height);
 
 void ApplyGravity();
 bool IsColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y);
@@ -197,12 +197,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
     static int map[MAP_HEIGHT][MAP_WIDTH];
 
+    static HBITMAP hBitmapPlayer;
+    static HBITMAP hBitmapPlayerMask;
+    hBitmapPlayer = LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE));
+    hBitmapPlayerMask = LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE_MASK));
     static int spriteX = 0;
     static int spriteY = 0;
     static int spriteWidth = 30;
     static int spriteHeight = 0;
-
-
+    
     switch (message) {
     case WM_CREATE:
         InitPlayer();
@@ -212,6 +215,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         hBlackBrush = CreateSolidBrush(RGB(0, 0, 0));
         hWhiteBrush = CreateSolidBrush(RGB(255, 255, 255));
         hRedBrush = CreateSolidBrush(RGB(255, 0, 0));
+        
+        
         SetTimer(hWnd, 1, 1000 / 60, NULL);
         SetTimer(hWnd, 2, 150, NULL);
         break;
@@ -297,7 +302,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         DrawMap(mDC, map, hBlackBrush, hWhiteBrush, hRedBrush);
         DrawEnemies(mDC);
         DrawBullets(mDC);
-        drawSprite(mDC, spriteX, spriteY, spriteWidth, spriteHeight);
+        drawSprite(mDC, hBitmapPlayer, hBitmapPlayerMask, spriteX, spriteY, spriteWidth, spriteHeight);
         //DrawPlayer(mDC);
         // 메모리 DC에서 화면 DC로 그림을 복사
         // #1 맵 전체를 그리기
@@ -315,12 +320,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         if (sourceY - sourceHeight >= 0) { sourceY = sourceHeight + GRID; }
         if (sourceY <= 0) { sourceY = 0; }
 
-
         StretchBlt(hDC, 0, 0, stretchWidth, stretchHeight, mDC, sourceX, sourceY, sourceWidth, sourceHeight, SRCCOPY);
 
         DeleteDC(mDC);
         DeleteObject(hBitmap);
         EndPaint(hWnd, &ps);
+        
         break;
     }
     case WM_KEYDOWN:
@@ -335,6 +340,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         DeleteObject(hBlackBrush);
         DeleteObject(hWhiteBrush);
         DeleteObject(hRedBrush);
+        DeleteObject(hBitmapPlayer);
+        DeleteObject(hBitmapPlayerMask);
         PostQuitMessage(0);
         break;
     default:
@@ -513,9 +520,7 @@ void DrawPlayer(HDC hdc) {
     DeleteObject(hBrush);
 }
 
-void drawSprite(HDC hDC, const int& x, const int& y, const int& width, const int& height) {
-    HBITMAP spriteSheet = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE));
-    HBITMAP spriteSheetMask = LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE_MASK));
+void drawSprite(HDC hDC, HBITMAP spriteSheet, HBITMAP spriteSheetMask, const int& x, const int& y, const int& width, const int& height) {
     HDC hmemDC = CreateCompatibleDC(hDC);
     HBITMAP oldBitmap = (HBITMAP)SelectObject(hmemDC, spriteSheetMask);
     if (g_player.face == "left") {
@@ -525,6 +530,7 @@ void drawSprite(HDC hDC, const int& x, const int& y, const int& width, const int
         SelectObject(hmemDC, oldBitmap);
     }
     else if (g_player.face == "right") {
+
         StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, x, y, width, height, SRCAND);
         oldBitmap = (HBITMAP)SelectObject(hmemDC, spriteSheet);
         StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, x, y, width, height, SRCPAINT);
