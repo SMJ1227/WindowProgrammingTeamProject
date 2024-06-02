@@ -18,7 +18,7 @@ const int GRAVITY = 1; // 중력 상수
 
 int map_num = 0;
 int map0[MAP_HEIGHT][MAP_WIDTH] = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 6, 6, 0, 0, 0, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
@@ -26,12 +26,12 @@ int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 3, 0},
     {0, 1, 1, 1, 2, 1, 1, 1, 1, 3, 1, 0},
-    {0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 3, 0},
+    {0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 3, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 0},
     {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0},
@@ -61,26 +61,26 @@ int map1[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 3, 0, 0, 1, 1, 1, 1, 1, 0},
+    {4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 0},
+    {0, 0, 0, 1, 1, 1, 1, 1, 3, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 };
 using namespace std;
@@ -99,7 +99,6 @@ struct Player {
     bool isCharging;
     bool isJumping;
     bool isSliding;
-    bool slip; // 미끄러지는 동안 계속 true
     string face;// face: left, right  
 
 } g_player;
@@ -139,14 +138,17 @@ void GenerateItem(int x, int y, int num);
 void DrawItems(HDC hdc);
 void InitEnemy(int map[MAP_HEIGHT][MAP_WIDTH]);
 void GenerateEnemy(int x, int y);
+void DeleteAllEnemies();
 void DrawEnemies(HDC hDC);
 void ShootBullet();
+void DeleteAllBullets();
 void MoveBullets();
 void DrawBullets(HDC hDC);
 void CheckCollisions();
 void CheckEnemyPlayerCollisions();
 void CheckItemPlayerCollisions();
 void CheckPlayerBulletCollisions();
+bool IsNextColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y);
 
 // WinMain 함수
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow) {
@@ -200,6 +202,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     static int spriteWidth = 30;
     static int spriteHeight = 0;
 
+
     switch (message) {
     case WM_CREATE:
         InitPlayer();
@@ -236,12 +239,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
                 shootInterval = 0;
             }
             CheckCollisions();
+            if (IsNextColliding(map, g_player.x, g_player.y) == true) {
+                InitPlayer();
+                InitMap(map, map1);
+                DeleteAllEnemies();
+                DeleteAllBullets();
+                InitEnemy(map);
+            }
+        
             break;
         case 2:
             if (g_player.dx < 0) g_player.face = "left";
             else if (g_player.dx > 0) g_player.face = "right";
             if (g_player.dy == 0 && g_player.jumpSpeed == 0 && g_player.dx != 0) {
-                if ((spriteX += spriteWidth) > 230) spriteX = 0;
+                if ((spriteX += spriteWidth) > 290) spriteX = 0;
                 spriteY = 24;
                 spriteHeight = 24;
             }
@@ -385,7 +396,7 @@ void DrawMap(HDC hdc, int map[MAP_HEIGHT][MAP_WIDTH], HBRUSH hBlackBrush, HBRUSH
                 /*SelectObject(hdc, hBlackBrush);
                 Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);*/
             }
-            else if (map[y][x] == 1) {
+            else if (map[y][x] == 1 || map[y][x] == 6) {
                 // 흰색
                 SelectObject(hdc, hWhiteBrush);
                 Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
@@ -542,7 +553,6 @@ bool IsColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y) {
     if (map[gridY][gridX] == 0) {
         return true;
     }
-
     return false;
 }
 
@@ -554,10 +564,8 @@ bool IsSlopeGoRightColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y) {
 
     // 충돌 감지
     if (map[bottomY][leftX] == 2 || map[bottomY][rightX] == 2) {
-        g_player.slip = true;
         return true;
     }
-
     return false;
 }
 
@@ -569,13 +577,22 @@ bool IsSlopeGoLeftColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y) {
 
     // 충돌 감지
     if (map[bottomY][leftX] == 3 || map[bottomY][rightX] == 3) {
-        g_player.slip = true;
         return true;
     }
-
     return false;
 }
 
+bool IsNextColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y) {
+    int leftX = (x - PLAYER_SIZE / 2) / GRID;
+    int rightX = (x + PLAYER_SIZE / 2 - 1) / GRID;
+    int topY = (y - PLAYER_SIZE / 2) / GRID;
+    int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
+
+    if (map[topY][leftX] == 6 || map[topY][rightX] == 6 ) {
+		return true;
+	}
+	return false;
+}
 // 아이템
 void GenerateItem(int x, int y, int num) {
     Item newItem;
@@ -611,6 +628,10 @@ void GenerateEnemy(int x, int y) {
     g_enemies.push_back(newEnemy);
 }
 
+void DeleteAllEnemies() {
+	g_enemies.clear();
+}
+
 void DrawEnemies(HDC hdc) {
     for (const auto& enemy : g_enemies) {
         HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 0));
@@ -629,6 +650,10 @@ void ShootBullet() {
         newBullet.dy = 0;
         g_bullets.push_back(newBullet);
     }
+}
+
+void DeleteAllBullets() {
+	g_bullets.clear();
 }
 
 void MoveBullets() {
@@ -670,6 +695,7 @@ void CheckEnemyPlayerCollisions() {
             g_player.isCharging = false;
             g_player.jumpSpeed = 0;
             ++it; // 충돌 시 반복자를 증가시킵니다.
+
         }
         else {
             ++it; // 충돌이 발생하지 않았을 때도 반복자를 증가시킵니다.
