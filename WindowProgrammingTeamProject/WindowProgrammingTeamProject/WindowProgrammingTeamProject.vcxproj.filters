@@ -90,5 +90,29 @@
     <Image Include="pMove2_mask.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
+    <Image Include="snowtile.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="SnowBg.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="Cannon.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="desertbg_sand.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="deserttiles.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="desertbg_sand2.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="desertbg_sand3.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="desertbg_sand4.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
 </Project>

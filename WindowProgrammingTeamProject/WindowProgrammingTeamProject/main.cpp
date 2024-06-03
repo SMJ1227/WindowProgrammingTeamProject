@@ -3,6 +3,7 @@
 #include <time.h>
 #include <math.h>
 #include <string>
+#include <atlImage.h>
 #include "resource.h"
 
 const int WINDOW_WIDTH = 600;
@@ -18,23 +19,23 @@ const int GRAVITY = 1; // 중력 상수
 
 int map_num = 0;
 int map0[MAP_HEIGHT][MAP_WIDTH] = {
-    {0, 0, 0, 0, 0, 0, 6, 6, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 6, 6, 0, 0, 0, 0, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 3, 0},
-    {0, 1, 1, 1, 2, 1, 1, 1, 1, 3, 1, 0},
-    {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 0, 2, 1, 1, 1, 1, 3, 0, 0},
+    {0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0},
+    {0, 1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 0},
+    {0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0},
+    {0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0},
     {0, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 3, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 0},
-    {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 3, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
@@ -61,11 +62,11 @@ int map1[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 0},
+    {4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0},
@@ -77,11 +78,79 @@ int map1[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 3, 0, 0, 1, 1, 1, 1, 1, 0},
     {4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 0},
-    {0, 0, 0, 1, 1, 1, 1, 1, 3, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0},
+    {0, 0, 0, 1, 1, 1, 1, 1, 3, 0, 0, 0},
+    {0, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0},
+    {0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+};
+
+int tile_num = 0;
+int tile0[MAP_HEIGHT][MAP_WIDTH] = {
+    {1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 14, 15, 16, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 1, 0, 0, 0, 0, 0, 0, 10, 6},
+    {4, 0, 0, 4, 12, 0, 0, 0, 0, 10, 11, 6},
+    {4, 0, 0, 4, 13, 3, 0, 0, 0, 7, 8, 6},
+    {4, 0, 0, 4,  5, 13, 12, 0, 0, 0, 0, 6},
+    {4, 0, 0, 4,  5,  5, 13, 3, 0, 0, 0, 6},
+    {4, 0, 0, 7,  8,  8,  8, 9, 0, 0, 0, 6},
+    {4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 14, 15, 15, 16, 0, 15, 0, 0, 0, 10, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 15, 0, 11, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 15, 0, 15, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 15, 0, 0, 0, 0, 15, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 13, 12, 0, 0, 0, 0, 15, 0, 0, 10, 6},
+    {4, 5, 13, 12, 0, 0, 0, 0, 0, 10, 11, 6},
+    {4, 0, 5, 13, 12, 0, 0, 0, 10, 11, 5, 6},
+    {17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17},
+};
+int tile1[MAP_HEIGHT][MAP_WIDTH] = {
+    {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 9, 9, 11, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 9, 9, 0, 0, 12, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 10, 9, 9, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 8},
+    {7, 0, 0, 0, 0, 0, 0, 0, 0, 10, 9, 8},
+    {7, 9, 9, 0, 0, 0, 0, 0, 10, 9, 9, 8},
+    {7, 0, 0, 0, 0, 0, 0, 10, 9, 9, 9, 8},
+    {7, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 8},
+    {3, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4}
 };
 using namespace std;
 
@@ -99,6 +168,7 @@ struct Player {
     bool isCharging;
     bool isJumping;
     bool isSliding;
+    bool slip; // 미끄러지는 동안 계속 true
     string face;// face: left, right  
 
 } g_player;
@@ -123,32 +193,32 @@ vector<Bullet> g_bullets;
 
 void ProcessKeyboardDown(WPARAM wParam);
 void ProcessKeyboardUp(WPARAM wParam);
+void DrawBg(HDC hDC, CImage bg);
+void DrawSnowTile(HDC hDC, CImage tile);
+void DrawDesertTile(HDC hDC, CImage tile);
 void InitMap(int dst[MAP_HEIGHT][MAP_WIDTH], int src[MAP_HEIGHT][MAP_WIDTH]);
-void DrawMap(HDC hdc, int map[MAP_HEIGHT][MAP_WIDTH], HBRUSH hBlackBrush, HBRUSH hWhiteBrush, HBRUSH hRedBrush);
 void InitPlayer();
 void MovePlayer(int map[MAP_HEIGHT][MAP_WIDTH]);
-void DrawPlayer(HDC hDC);
-void drawSprite(HDC hDC, HBITMAP sheet, HBITMAP mask, const int& x, const int& y, const int& width, const int& height);
-
+void DrawSprite(HDC hDC, HBITMAP sheet, HBITMAP mask, const int& x, const int& y, const int& width, const int& height);
 void ApplyGravity();
 bool IsColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y);
 bool IsSlopeGoRightColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y);
 bool IsSlopeGoLeftColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y);
+bool IsNextColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y);
 void GenerateItem(int x, int y, int num);
-void DrawItems(HDC hdc);
+void DrawItems(HDC hDC);
 void InitEnemy(int map[MAP_HEIGHT][MAP_WIDTH]);
 void GenerateEnemy(int x, int y);
+void DrawEnemies(HDC hDC, CImage cannon);
 void DeleteAllEnemies();
-void DrawEnemies(HDC hDC);
 void ShootBullet();
-void DeleteAllBullets();
 void MoveBullets();
 void DrawBullets(HDC hDC);
+void DeleteAllBullets();
 void CheckCollisions();
 void CheckEnemyPlayerCollisions();
 void CheckItemPlayerCollisions();
 void CheckPlayerBulletCollisions();
-bool IsNextColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y);
 
 // WinMain 함수
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow) {
@@ -191,33 +261,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     HDC mDC;
     HBITMAP hBitmap;
     RECT rt;
-    static HBRUSH hBlackBrush, hWhiteBrush, hRedBrush;
 
     static int shootInterval = 0;
 
     static int map[MAP_HEIGHT][MAP_WIDTH];
 
-    static HBITMAP hBitmapPlayer;
-    static HBITMAP hBitmapPlayerMask;
-    hBitmapPlayer = LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE));
-    hBitmapPlayerMask = LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE_MASK));
+    static bool initialized = false;
     static int spriteX = 0;
     static int spriteY = 0;
     static int spriteWidth = 30;
     static int spriteHeight = 0;
-    
+
+    static HBITMAP hBitmapPlayer;
+    static HBITMAP hBitmapPlayerMask;
+    if (!initialized) {
+        hBitmapPlayer = LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE));
+        hBitmapPlayerMask = LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE_MASK));
+        initialized = true;
+    }
+
+    CImage Snowtile; Snowtile.Load(L"snowtile.png");
+    CImage Snowbg; Snowbg.Load(L"SnowBg.png");
+    CImage cannon; cannon.Load(L"Cannon.png");
+    CImage desertBg; desertBg.Load(L"desertbg_sand4.png");
+    CImage desertTile; desertTile.Load(L"deserttiles.png");
+
     switch (message) {
-    case WM_CREATE:
+    case WM_CREATE: 
         InitPlayer();
         InitMap(map, map0);
-        InitEnemy(map);
-        
-        hBlackBrush = CreateSolidBrush(RGB(0, 0, 0));
-        hWhiteBrush = CreateSolidBrush(RGB(255, 255, 255));
-        hRedBrush = CreateSolidBrush(RGB(255, 0, 0));
-        
-        
-        SetTimer(hWnd, 1, 1000 / 60, NULL);
+        InitEnemy(map0);
+        SetTimer(hWnd, 1, 1000/60, NULL);
         SetTimer(hWnd, 2, 150, NULL);
         break;
     case WM_COMMAND:
@@ -250,40 +324,53 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
                 DeleteAllEnemies();
                 DeleteAllBullets();
                 InitEnemy(map);
+                map_num++;
             }
-        
             break;
         case 2:
             if (g_player.dx < 0) g_player.face = "left";
             else if (g_player.dx > 0) g_player.face = "right";
             if (g_player.dy == 0 && g_player.jumpSpeed == 0 && g_player.dx != 0) {
-                if ((spriteX += spriteWidth) > 290) spriteX = 0;
+                if ((spriteX += spriteWidth) > 230) {
+                    spriteX = 0;
+                }
                 spriteY = 24;
                 spriteHeight = 24;
+
             }
             else if (g_player.dy == 0 && g_player.jumpSpeed < 0) {
                 spriteX = 0;
                 spriteY = 116;
                 spriteHeight = 22;
-                if (g_player.jumpSpeed == -20) spriteX = 30;
+                if (g_player.jumpSpeed == -20) {
+                    spriteX = 30;
+                }
             }
             else if (g_player.dy < 0) {
-                if ((spriteX += spriteWidth) > 119) spriteX = 0;
+                if ((spriteX += spriteWidth) > 119) {
+                    spriteX = 0;
+                }
                 spriteY = 48;
                 spriteHeight = 29;
             }
             else if (g_player.dy > 0 && g_player.isSliding == false) {
-                if ((spriteX += spriteWidth) > 59) spriteX = 0;
+                if ((spriteX += spriteWidth) > 59) {
+                    spriteX = 0;
+                }
                 spriteY = 77;
                 spriteHeight = 39;
             }
             else if (g_player.dy > 0 && g_player.isSliding == true) {
-                if ((spriteX += spriteWidth) > 29) spriteX = 0;                
+                if ((spriteX += spriteWidth) > 29) {
+                    spriteX = 0;
+                }
                 spriteY = 138;
                 spriteHeight = 25;
             }
             else {
-                if ((spriteX += spriteWidth) > 230) spriteX = 0;
+                if ((spriteX += spriteWidth) > 230) {
+                    spriteX = 0;
+                }
                 spriteY = 0;
                 spriteHeight = 24;                
             }
@@ -299,11 +386,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         SelectObject(mDC, (HBITMAP)hBitmap);
 
         //--- 모든 그리기를 메모리 DC에한다.
-        DrawMap(mDC, map, hBlackBrush, hWhiteBrush, hRedBrush);
-        DrawEnemies(mDC);
+        if (map_num==0) {
+            DrawBg(mDC, Snowbg);
+            DrawSnowTile(mDC, Snowtile);
+        }
+        else if (map_num==1) {
+			DrawBg(mDC, desertBg);
+			DrawDesertTile(mDC, desertTile);
+		}
+        DrawEnemies(mDC, cannon);
         DrawBullets(mDC);
-        drawSprite(mDC, hBitmapPlayer, hBitmapPlayerMask, spriteX, spriteY, spriteWidth, spriteHeight);
-        //DrawPlayer(mDC);
+        DrawSprite(mDC, hBitmapPlayer, hBitmapPlayerMask, spriteX, spriteY, spriteWidth, spriteHeight);
         // 메모리 DC에서 화면 DC로 그림을 복사
         // #1 맵 전체를 그리기
         // BitBlt(hDC, 0, 0, BOARD_WIDTH, BOARD_HEIGHT, mDC, 0, 0, SRCCOPY);
@@ -320,12 +413,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         if (sourceY - sourceHeight >= 0) { sourceY = sourceHeight + GRID; }
         if (sourceY <= 0) { sourceY = 0; }
 
+
         StretchBlt(hDC, 0, 0, stretchWidth, stretchHeight, mDC, sourceX, sourceY, sourceWidth, sourceHeight, SRCCOPY);
 
         DeleteDC(mDC);
         DeleteObject(hBitmap);
         EndPaint(hWnd, &ps);
-        
         break;
     }
     case WM_KEYDOWN:
@@ -337,9 +430,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         InvalidateRect(hWnd, NULL, FALSE);
         break;
     case WM_DESTROY:
-        DeleteObject(hBlackBrush);
-        DeleteObject(hWhiteBrush);
-        DeleteObject(hRedBrush);
+        Snowtile.Destroy();
+        Snowbg.Destroy();
+        cannon.Destroy();
+        desertBg.Destroy();
+        desertTile.Destroy();
         DeleteObject(hBitmapPlayer);
         DeleteObject(hBitmapPlayerMask);
         PostQuitMessage(0);
@@ -394,56 +489,125 @@ void ProcessKeyboardUp(WPARAM wParam) {
 }
 
 // 맵
-void DrawMap(HDC hdc, int map[MAP_HEIGHT][MAP_WIDTH], HBRUSH hBlackBrush, HBRUSH hWhiteBrush, HBRUSH hRedBrush) {
+void DrawSnowTile(HDC hDC, CImage tile) {
+    // 칸당 96x96
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
-            // 현재 맵의 값이 1이면 흰색(플레이어 영역), 0이면 검은색으로 그립니다.
-            if (map[y][x] == 0) {
-                // 검은색
-                /*SelectObject(hdc, hBlackBrush);
-                Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);*/
-            }
-            else if (map[y][x] == 1 || map[y][x] == 6) {
-                // 흰색
-                SelectObject(hdc, hWhiteBrush);
-                Rectangle(hdc, x * GRID, y * GRID, (x + 1) * GRID, (y + 1) * GRID);
-            }
-            else if (map[y][x] == 2) {  // 오른쪽 아래로 흘러내리는 빗면
-                // 검은색
-                POINT point[3];
-                point[0].x = x * GRID;
-                point[0].y = y * GRID;
-                point[1].x = x * GRID;
-                point[1].y = (y + 1) * GRID;
-                point[2].x = (x + 1) * GRID;
-                point[2].y = (y + 1) * GRID;
-                SelectObject(hdc, hRedBrush);
-                Polygon(hdc, point, 3);
-            }
-            else if (map[y][x] == 3) {  // 왼쪽 아래로 흘러내리는 빗면
-                // 검은색
-                POINT point[3];
-                point[0].x = (x + 1) * GRID;
-                point[0].y = y * GRID;
-                point[1].x = x * GRID;
-                point[1].y = (y + 1) * GRID;
-                point[2].x = (x + 1) * GRID;
-                point[2].y = (y + 1) * GRID;
-                SelectObject(hdc, hRedBrush);
-                Polygon(hdc, point, 3);
+            int tileType = tile0[y][x];
+            switch (tileType) {
+            case 1:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 0, 96, 96);
+                continue;
+            case 2:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 0, 96, 96);
+                continue;
+            case 3:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 2, 0, 96, 96);
+                continue;
+            case 4:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 96, 96, 96);
+                continue;
+            case 5:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 96, 96, 96);
+                continue;
+            case 6:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 2, 96, 96, 96);
+                continue;
+            case 7:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 96 * 2, 96, 96);
+                continue;
+            case 8:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 96 * 2, 96, 96);
+                continue;
+            case 9:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 2, 96 * 2, 96, 96);
+                continue;
+            case 10:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 3, 0, 96, 96);
+                continue;
+            case 11:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 3, 96, 96, 96);
+                continue;
+            case 12:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 4, 0, 96, 96);
+                continue;
+            case 13:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 4, 96, 96, 96);
+                continue;
+            case 14:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID * 2, 96 * 5, 0, 96, 96);
+                continue;
+            case 15:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID * 2, 96 * 6, 0, 96, 96);
+                continue;
+            case 16:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID * 2, 96 * 7, 0, 96, 96);
+                continue;
+            case 17:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 8, 0, 96, 96);
+                continue;
+            default:
+                break;
             }
         }
     }
 }
-
+void DrawDesertTile(HDC hDC, CImage tile) {
+    // 칸당 32x32
+    for (int y = 0; y < MAP_HEIGHT; y++) {
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            int tileType = tile1[y][x];
+            switch (tileType) {
+            case 1:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 32 * 5, 0, 32, 32);
+                continue;
+            case 2:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 32 * 4, 0, 32, 32);
+                continue;
+            case 3:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 32 * 7, 0, 32, 32);
+                continue;
+            case 4:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 32 * 6, 0, 32, 32);
+                continue;
+            case 5:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 32 * 8, 0, 32, 32);
+                continue;
+            case 6:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 32 * 9, 0, 32, 32);
+                continue;
+            case 7:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 32 * 10, 0, 32, 32);
+                continue;
+            case 8:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 32 * 11, 0, 32, 32);
+                continue;
+            case 9:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 0, 32, 32);
+                continue;
+            case 10:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 32 * 2, 0, 32, 32);
+                continue;
+            case 11:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 32 * 3, 0, 32, 32);
+                continue;
+            case 12:
+                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 32 * 1, 0, 32, 32);
+                continue;
+            }
+        }
+    }
+}
+void DrawBg(HDC hDC, CImage bg) {
+    bg.StretchBlt(hDC, -GRID / 2, 0, BOARD_WIDTH, BOARD_HEIGHT, SRCCOPY);
+}
 void InitMap(int dst[MAP_HEIGHT][MAP_WIDTH], int src[MAP_HEIGHT][MAP_WIDTH]) {
     for (int i = 0; i < MAP_HEIGHT; i++) {
         for (int j = 0; j < MAP_WIDTH; j++) {
-			dst[i][j] = src[i][j];
-		}
-	}
+            dst[i][j] = src[i][j];
+        }
+    }
 }
-
 // 플레이어
 void InitPlayer() {
     g_player.x = (MAP_WIDTH - 7) * GRID;
@@ -513,33 +677,22 @@ void MovePlayer(int map[MAP_HEIGHT][MAP_WIDTH]) {
     }
 }
 
-void DrawPlayer(HDC hdc) {
-    HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
-    SelectObject(hdc, hBrush);
-    Rectangle(hdc, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, g_player.x + PLAYER_SIZE / 2, g_player.y + PLAYER_SIZE / 2);
-    DeleteObject(hBrush);
-}
-
-void drawSprite(HDC hDC, HBITMAP spriteSheet, HBITMAP spriteSheetMask, const int& x, const int& y, const int& width, const int& height) {
+void DrawSprite(HDC hDC, HBITMAP spriteSheet, HBITMAP spriteSheetMask, const int& x, const int& y, const int& width, const int& height) {
     HDC hmemDC = CreateCompatibleDC(hDC);
     HBITMAP oldBitmap = (HBITMAP)SelectObject(hmemDC, spriteSheetMask);
     if (g_player.face == "left") {
         StretchBlt(hDC, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE, hmemDC, x, y, width, height, SRCAND);
         oldBitmap = (HBITMAP)SelectObject(hmemDC, spriteSheet);
         StretchBlt(hDC, g_player.x - PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE, hmemDC, x, y, width, height, SRCPAINT);
-        SelectObject(hmemDC, oldBitmap);
     }
     else if (g_player.face == "right") {
-
         StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, x, y, width, height, SRCAND);
         oldBitmap = (HBITMAP)SelectObject(hmemDC, spriteSheet);
         StretchBlt(hDC, g_player.x + PLAYER_SIZE / 2, g_player.y - PLAYER_SIZE / 2, -PLAYER_SIZE, PLAYER_SIZE, hmemDC, x, y, width, height, SRCPAINT);
-        SelectObject(hmemDC, oldBitmap);
     }
+    SelectObject(hmemDC, oldBitmap);
     DeleteDC(hmemDC);
     DeleteObject(oldBitmap);
-    DeleteObject(spriteSheet);
-    DeleteObject(spriteSheetMask);
 }
 
 void ApplyGravity() {
@@ -594,11 +747,12 @@ bool IsNextColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y) {
     int topY = (y - PLAYER_SIZE / 2) / GRID;
     int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
 
-    if (map[topY][leftX] == 6 || map[topY][rightX] == 6 ) {
-		return true;
-	}
-	return false;
+    if (map[topY][leftX] == 6 || map[topY][rightX] == 6) {
+        return true;
+    }
+    return false;
 }
+
 // 아이템
 void GenerateItem(int x, int y, int num) {
     Item newItem;
@@ -634,32 +788,25 @@ void GenerateEnemy(int x, int y) {
     g_enemies.push_back(newEnemy);
 }
 
-void DeleteAllEnemies() {
-	g_enemies.clear();
+void DrawEnemies(HDC hDC, CImage cannon) {
+    for (const auto& enemy : g_enemies) {
+        cannon.StretchBlt(hDC, enemy.x * GRID, enemy.y * GRID, GRID, GRID, SRCCOPY);
+    }
 }
 
-void DrawEnemies(HDC hdc) {
-    for (const auto& enemy : g_enemies) {
-        HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 0));
-        SelectObject(hdc, hBrush);
-        Rectangle(hdc, enemy.x * GRID, enemy.y * GRID, (enemy.x + 1) * GRID, (enemy.y + 1) * GRID);
-        DeleteObject(hBrush);
-    }
+void DeleteAllEnemies() {
+    g_enemies.clear();
 }
 
 void ShootBullet() {
     for (const auto& enemy : g_enemies) {
         Bullet newBullet;
-        newBullet.x = enemy.x * GRID; // 적의 위치에서 총알이 나가도록 설정
+        newBullet.x = (enemy.x + 1) * GRID; // 적의 위치에서 총알이 나가도록 설정
         newBullet.y = enemy.y * GRID + GRID / 2;
         newBullet.dx = 2;
         newBullet.dy = 0;
         g_bullets.push_back(newBullet);
     }
-}
-
-void DeleteAllBullets() {
-	g_bullets.clear();
 }
 
 void MoveBullets() {
@@ -686,6 +833,10 @@ void DrawBullets(HDC hdc) {
     DeleteObject(hBrush);
 }
 
+void DeleteAllBullets() {
+    g_bullets.clear();
+}
+
 // 충돌 확인 함수
 void CheckCollisions() {
     CheckItemPlayerCollisions();
@@ -701,7 +852,6 @@ void CheckEnemyPlayerCollisions() {
             g_player.isCharging = false;
             g_player.jumpSpeed = 0;
             ++it; // 충돌 시 반복자를 증가시킵니다.
-
         }
         else {
             ++it; // 충돌이 발생하지 않았을 때도 반복자를 증가시킵니다.

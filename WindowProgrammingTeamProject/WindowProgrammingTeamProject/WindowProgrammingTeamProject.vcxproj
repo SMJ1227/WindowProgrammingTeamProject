@@ -136,6 +136,12 @@
     <ResourceCompile Include="WindowProgrammingTeamProject.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Cannon.png" />
+    <Image Include="desertbg_sand.png" />
+    <Image Include="desertbg_sand2.png" />
+    <Image Include="desertbg_sand3.png" />
+    <Image Include="desertbg_sand4.png" />
+    <Image Include="deserttiles.png" />
     <Image Include="pCharge1.bmp" />
     <Image Include="pCharge1_mask.bmp" />
     <Image Include="pCharge2.bmp" />
@@ -155,6 +161,8 @@
     <Image Include="pSlipped.bmp" />
     <Image Include="pSlipped2.bmp" />
     <Image Include="pSlipped2_mask.bmp" />
+    <Image Include="SnowBg.png" />
+    <Image Include="snowtile.png" />
     <Image Include="tmw_desert_spacing.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
