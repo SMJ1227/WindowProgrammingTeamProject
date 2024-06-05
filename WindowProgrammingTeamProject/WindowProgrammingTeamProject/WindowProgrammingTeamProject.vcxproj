@@ -147,6 +147,7 @@
     <Image Include="pIdle_mask.bmp" />
     <Image Include="pJump1.bmp" />
     <Image Include="pJump1_mask.bmp" />
+    <Image Include="PlayerSprite.png" />
     <Image Include="PlayerSpriteFix.bmp" />
     <Image Include="PlayerSpriteFix_mask.bmp" />
     <Image Include="pMove.bmp" />

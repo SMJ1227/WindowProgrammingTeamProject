@@ -175,11 +175,84 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
 
-    while (GetMessage(&Message, 0, 0, 0)) {
+    //
+    // while (GetMessage(&Message, 0, 0, 0)) {
+    while(1) {
+        if (PeekMessage(&Message, NULL, 0, 0, PM_REMOVE)) {
+            if (Message.message == WM_QUIT)
+                break;
+        }
         TranslateMessage(&Message);
         DispatchMessage(&Message);
     }
     return Message.wParam;
+}
+// 타이머 콜백
+
+static int shootInterval = 0;
+static int spriteX = 0;
+static int spriteY = 0;
+static int spriteWidth = 30;
+static int spriteHeight = 0;
+
+void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+{
+    ApplyGravity();
+    MovePlayer();
+    MoveBullets();
+    shootInterval++;
+    if (shootInterval > 120) {
+        ShootBullet();
+        shootInterval = 0;
+    }
+    CheckCollisions();
+    if (g_player.dx < 0) g_player.face = "left";
+    else if (g_player.dx > 0) g_player.face = "right";
+    if (g_player.dy == 0 && g_player.jumpSpeed == 0 && g_player.dx != 0) {
+        if ((spriteX += spriteWidth) > 230) {
+            spriteX = 0;
+        }
+        spriteY = 24;
+        spriteHeight = 24;
+
+    }
+    else if (g_player.dy == 0 && g_player.jumpSpeed < 0) {
+        spriteX = 0;
+        spriteY = 116;
+        spriteHeight = 22;
+        if (g_player.jumpSpeed == -20) {
+            spriteX = 30;
+        }
+    }
+    else if (g_player.dy < 0) {
+        if ((spriteX += spriteWidth) > 119) {
+            spriteX = 0;
+        }
+        spriteY = 48;
+        spriteHeight = 29;
+    }
+    else if (g_player.dy > 0 && g_player.isSliding == false) {
+        if ((spriteX += spriteWidth) > 59) {
+            spriteX = 0;
+        }
+        spriteY = 77;
+        spriteHeight = 39;
+    }
+    else if (g_player.dy > 0 && g_player.isSliding == true) {
+        if ((spriteX += spriteWidth) > 29) {
+            spriteX = 0;
+        }
+        spriteY = 138;
+        spriteHeight = 25;
+    }
+    else {
+        if ((spriteX += spriteWidth) > 230) {
+            spriteX = 0;
+        }
+        spriteY = 0;
+        spriteHeight = 24;
+    }
+    InvalidateRect(hWnd, NULL, FALSE);
 }
 
 //메인 함수
@@ -191,22 +264,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     HBITMAP hBitmap;
     RECT rt;
 
-    static int shootInterval = 0;
-
-    static int spriteX = 0;
-    static int spriteY = 0;
-    static int spriteWidth = 30;
-    static int spriteHeight = 0;
-
     CImage Snowtile; Snowtile.Load(L"snowtile.png");
     CImage Snowbg; Snowbg.Load(L"SnowBg.png");
     CImage cannon; cannon.Load(L"Cannon.png");
+
+
+    CImage playerSprite; playerSprite.Load(L"PlayerSprite.png");
+    static int playerFrameIndex = 0;
+
     switch (message) {
     case WM_CREATE:
         InitPlayer();
         InitEnemy();
-        SetTimer(hWnd, 1, 1000 / 60, NULL);
-        SetTimer(hWnd, 2, 150, NULL);
+        SetTimer(hWnd, 1, 1000/60, (TIMERPROC)TimerProc);
         break;
     case WM_COMMAND:
         switch (LOWORD(wParam)) {}
@@ -219,70 +289,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             PostQuitMessage(0);
             break;
         }
-        break;
-    case WM_TIMER:
-        switch (wParam) {
-        case 1:
-            ApplyGravity();
-            MovePlayer();
-            MoveBullets();
-            shootInterval++;
-            if (shootInterval > 120) {
-                ShootBullet();
-                shootInterval = 0;
-            }
-            CheckCollisions();
-            break;
-        case 2:
-            if (g_player.dx < 0) g_player.face = "left";
-            else if (g_player.dx > 0) g_player.face = "right";
-            if (g_player.dy == 0 && g_player.jumpSpeed == 0 && g_player.dx != 0) {
-                if ((spriteX += spriteWidth) > 230) {
-                    spriteX = 0;
-                }
-                spriteY = 24;
-                spriteHeight = 24;
-
-            }
-            else if (g_player.dy == 0 && g_player.jumpSpeed < 0) {
-                spriteX = 0;
-                spriteY = 116;
-                spriteHeight = 22;
-                if (g_player.jumpSpeed == -20) {
-                    spriteX = 30;
-                }
-            }
-            else if (g_player.dy < 0) {
-                if ((spriteX += spriteWidth) > 119) {
-                    spriteX = 0;
-                }
-                spriteY = 48;
-                spriteHeight = 29;
-            }
-            else if (g_player.dy > 0 && g_player.isSliding == false) {
-                if ((spriteX += spriteWidth) > 59) {
-                    spriteX = 0;
-                }
-                spriteY = 77;
-                spriteHeight = 39;
-            }
-            else if (g_player.dy > 0 && g_player.isSliding == true) {
-                if ((spriteX += spriteWidth) > 29) {
-                    spriteX = 0;
-                }
-                spriteY = 138;
-                spriteHeight = 25;
-            }
-            else {
-                if ((spriteX += spriteWidth) > 230) {
-                    spriteX = 0;
-                }
-                spriteY = 0;
-                spriteHeight = 24;                
-            }
-            break;
-        }
-        InvalidateRect(hWnd, NULL, FALSE);
         break;
     case WM_PAINT:
     {
@@ -313,7 +319,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         if (sourceY - sourceHeight >= 0) { sourceY = sourceHeight + GRID; }
         if (sourceY <= 0) { sourceY = 0; }
 
-
         StretchBlt(hDC, 0, 0, stretchWidth, stretchHeight, mDC, sourceX, sourceY, sourceWidth, sourceHeight, SRCCOPY);
 
         DeleteDC(mDC);
@@ -323,16 +328,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     }
     case WM_KEYDOWN:
         ProcessKeyboardDown(wParam);
-        InvalidateRect(hWnd, NULL, FALSE);
         break;
     case WM_KEYUP:
         ProcessKeyboardUp(wParam);
-        InvalidateRect(hWnd, NULL, FALSE);
+        //InvalidateRect(hWnd, NULL, FALSE);
         break;
     case WM_DESTROY:
         Snowtile.Destroy();
         Snowbg.Destroy();
         cannon.Destroy();
+        KillTimer(hWnd, 1);
         PostQuitMessage(0);
         break;
     default:
@@ -393,56 +398,54 @@ void DrawSnowTile(HDC hDC, CImage tile) {
             switch (tileType) {
             case 1:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 0, 96, 96);
-                continue;
+                break;
             case 2:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 0, 96, 96);
-                continue;
+                break;
             case 3:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 2, 0, 96, 96);
-                continue;
+                break;
             case 4:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 96, 96, 96);
-                continue;
+                break;
             case 5:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 96, 96, 96);
-                continue;
+                break;
             case 6:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 2, 96, 96, 96);
-                continue;
+                break;
             case 7:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 96 * 2, 96, 96);
-                continue;
+                break;
             case 8:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 96 * 2, 96, 96);
-                continue;
+                break;
             case 9:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 2, 96 * 2, 96, 96);
-                continue;
+                break;
             case 10:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 3, 0, 96, 96);
-                continue;
+                break;
             case 11:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 3, 96, 96, 96);
-                continue;
+                break;
             case 12:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 4, 0, 96, 96);
-                continue;
+                break;
             case 13:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 4, 96, 96, 96);
-                continue;
+                break;
             case 14:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID * 2, 96 * 5, 0, 96, 96);
-                continue;
+                break;
             case 15:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID * 2, 96 * 6, 0, 96, 96);
-                continue;
+                break;
             case 16:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID * 2, 96 * 7, 0, 96, 96);
-                continue;
+                break;
             case 17:
                 tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 8, 0, 96, 96);
-                continue;
-            default:
                 break;
             }
         }
@@ -675,7 +678,7 @@ void DrawBullets(HDC hdc) {
 
 // 충돌 확인 함수
 void CheckCollisions() {
-    CheckItemPlayerCollisions();
+    //CheckItemPlayerCollisions();
     CheckPlayerBulletCollisions();
     CheckEnemyPlayerCollisions();
 }
