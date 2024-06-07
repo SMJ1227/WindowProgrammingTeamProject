@@ -107,7 +107,6 @@ struct Player {
 
 } g_player;
 
-
 struct Item {
     int x, y;
     int type;
@@ -128,7 +127,9 @@ vector<Bullet> g_bullets;
 void ProcessKeyboardDown(WPARAM wParam);
 void ProcessKeyboardUp(WPARAM wParam);
 void DrawBg(HDC hDC, CImage Snowbg);
+void DrawBg(HDC hDC);
 void DrawSnowTile(HDC hDC, CImage tile);
+void DrawSnowTile(HDC hDC);
 void InitPlayer();
 void MovePlayer();
 void DrawSprite(HDC hDC, const int& x, const int& y, const int& width, const int& height);
@@ -141,6 +142,7 @@ void DrawItems(HDC hDC);
 void InitEnemy();
 void GenerateEnemy(int x, int y);
 void DrawEnemies(HDC hDC, CImage cannon);
+void DrawEnemies(HDC hDC);
 void ShootBullet();
 void MoveBullets();
 void DrawBullets(HDC hDC);
@@ -175,19 +177,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
 
-    //
-    // while (GetMessage(&Message, 0, 0, 0)) {
-    while(1) {
+    while (1) {
         if (PeekMessage(&Message, NULL, 0, 0, PM_REMOVE)) {
             if (Message.message == WM_QUIT)
                 break;
         }
+        // #1 마우스 관련된 메세지를 무시하는 첫번째 방법
+        //if (Message.message == WM_MOUSEMOVE || Message.message == WM_LBUTTONDOWN || Message.message == WM_RBUTTONDOWN) {
+        //    // 마우스 메시지 무시
+        //    continue;
+        //}
         TranslateMessage(&Message);
         DispatchMessage(&Message);
     }
     return Message.wParam;
 }
-// 타이머 콜백
+
+//--- CImage 관련 변수 선언
+CImage Snowtile;
+CImage Snowbg;
+CImage cannon;
+CImage playerSprite;
 
 static int shootInterval = 0;
 static int spriteX = 0;
@@ -195,6 +205,7 @@ static int spriteY = 0;
 static int spriteWidth = 30;
 static int spriteHeight = 0;
 
+// 타이머 콜백
 void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
     ApplyGravity();
@@ -259,24 +270,24 @@ void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     PAINTSTRUCT ps;
-    HDC hDC = BeginPaint(hWnd, &ps);
+    HDC hDC;
     HDC mDC;
     HBITMAP hBitmap;
     RECT rt;
 
-    CImage Snowtile; Snowtile.Load(L"snowtile.png");
-    CImage Snowbg; Snowbg.Load(L"SnowBg.png");
-    CImage cannon; cannon.Load(L"Cannon.png");
-
-
-    CImage playerSprite; playerSprite.Load(L"PlayerSprite.png");
     static int playerFrameIndex = 0;
 
     switch (message) {
     case WM_CREATE:
         InitPlayer();
         InitEnemy();
-        SetTimer(hWnd, 1, 1000/60, (TIMERPROC)TimerProc);
+        Snowtile.Load(L"snowtile.png");
+        Snowbg.Load(L"SnowBg.png");
+        cannon.Load(L"Cannon.png");
+        playerSprite.Load(L"PlayerSprite.png");
+
+
+        SetTimer(hWnd, 1, 1000 / 60, (TIMERPROC)TimerProc);
         break;
     case WM_COMMAND:
         switch (LOWORD(wParam)) {}
@@ -292,17 +303,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         break;
     case WM_PAINT:
     {
+        hDC = BeginPaint(hWnd, &ps);
         GetClientRect(hWnd, &rt);
         mDC = CreateCompatibleDC(hDC);
         hBitmap = CreateCompatibleBitmap(hDC, BOARD_WIDTH, BOARD_HEIGHT);
         SelectObject(mDC, (HBITMAP)hBitmap);
 
-        //--- 모든 그리기를 메모리 DC에한다.
-        DrawBg(mDC, Snowbg);
-        DrawSnowTile(mDC, Snowtile);
-        DrawEnemies(mDC, cannon);
+        //--- 모든 그리기를 메모리 DC에한다.  ---> 바꾼 부분: CImage 변수는 전역변수로 선언하여 함수의 인자로 보내지 않도록 한다.
+        DrawBg(mDC);
+        DrawSnowTile(mDC);
+        DrawEnemies(mDC);
+
         DrawBullets(mDC);
         DrawSprite(mDC, spriteX, spriteY, spriteWidth, spriteHeight);
+
+
         // 메모리 DC에서 화면 DC로 그림을 복사
         // #1 맵 전체를 그리기
         // BitBlt(hDC, 0, 0, BOARD_WIDTH, BOARD_HEIGHT, mDC, 0, 0, SRCCOPY);
@@ -331,7 +346,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         break;
     case WM_KEYUP:
         ProcessKeyboardUp(wParam);
-        //InvalidateRect(hWnd, NULL, FALSE);
         break;
     case WM_DESTROY:
         Snowtile.Destroy();
@@ -390,72 +404,72 @@ void ProcessKeyboardUp(WPARAM wParam) {
 }
 
 // 맵
-void DrawSnowTile(HDC hDC, CImage tile) {
+void DrawSnowTile(HDC hDC) {
     // 칸당 96x96
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
             int tileType = tile0[y][x];
             switch (tileType) {
             case 1:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 0, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 0, 96, 96);
                 break;
             case 2:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 0, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 0, 96, 96);
                 break;
             case 3:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 2, 0, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 2, 0, 96, 96);
                 break;
             case 4:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 96, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 96, 96, 96);
                 break;
             case 5:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 96, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 96, 96, 96);
                 break;
             case 6:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 2, 96, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 2, 96, 96, 96);
                 break;
             case 7:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 96 * 2, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 96 * 2, 96, 96);
                 break;
             case 8:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 96 * 2, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96, 96 * 2, 96, 96);
                 break;
             case 9:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 2, 96 * 2, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 2, 96 * 2, 96, 96);
                 break;
             case 10:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 3, 0, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 3, 0, 96, 96);
                 break;
             case 11:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 3, 96, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 3, 96, 96, 96);
                 break;
             case 12:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 4, 0, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 4, 0, 96, 96);
                 break;
             case 13:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 4, 96, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 4, 96, 96, 96);
                 break;
             case 14:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID * 2, 96 * 5, 0, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID * 2, 96 * 5, 0, 96, 96);
                 break;
             case 15:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID * 2, 96 * 6, 0, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID * 2, 96 * 6, 0, 96, 96);
                 break;
             case 16:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID * 2, 96 * 7, 0, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID * 2, 96 * 7, 0, 96, 96);
                 break;
             case 17:
-                tile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 8, 0, 96, 96);
+                Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 8, 0, 96, 96);
                 break;
             }
         }
     }
 }
 
-
-void DrawBg(HDC hDC, CImage Snowbg) {
+void DrawBg(HDC hDC) {
     Snowbg.StretchBlt(hDC, -GRID / 2, 0, BOARD_WIDTH, BOARD_HEIGHT, SRCCOPY);
 }
+
 
 // 플레이어
 void InitPlayer() {
@@ -635,7 +649,7 @@ void GenerateEnemy(int x, int y) {
     g_enemies.push_back(newEnemy);
 }
 
-void DrawEnemies(HDC hDC, CImage cannon) {
+void DrawEnemies(HDC hDC) {
     for (const auto& enemy : g_enemies) {
         cannon.StretchBlt(hDC, enemy.x * GRID, enemy.y * GRID, GRID, GRID, SRCCOPY);
     }
