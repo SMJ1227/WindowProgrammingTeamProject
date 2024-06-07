@@ -447,13 +447,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 void ProcessKeyboard() {
     // 왼쪽 키 처리
     if (GetAsyncKeyState(VK_LEFT) & 0x8000) { // 키가 눌린 상태
-        if (!g_player.isCharging) {
+        if (!g_player.isCharging && !g_player.isSliding) {
             g_player.dx = -3;
             g_player.face = "left";
         }
     }
     else if (GetAsyncKeyState(VK_RIGHT) & 0x8000) { // 오른쪽 키 처리
-        if (!g_player.isCharging) {
+        if (!g_player.isCharging && !g_player.isSliding) {
             g_player.dx = 3;
             g_player.face = "right";
         }
