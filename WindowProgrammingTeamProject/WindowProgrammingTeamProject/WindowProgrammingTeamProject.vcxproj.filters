@@ -30,64 +30,10 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="tmw_desert_spacing.png">
-      <Filter>리소스 파일</Filter>
-    </Image>
     <Image Include="PlayerSpriteFix.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="PlayerSpriteFix_mask.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pIdle.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pMove.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pMove2.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pCharge1.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pJump1.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pFall.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pSlipped.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pSlipped2.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pIdle_mask.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pMove_mask.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pCharge1_mask.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pJump1_mask.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pFall_mask.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pSlipped2_mask.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pCharge2.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pCharge2_mask.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="pMove2_mask.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="snowtile.png">
@@ -99,19 +45,10 @@
     <Image Include="Cannon.png">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="desertbg_sand.png">
+    <Image Include="desertbg_sand4.png">
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="deserttiles.png">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="desertbg_sand2.png">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="desertbg_sand3.png">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="desertbg_sand4.png">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>
