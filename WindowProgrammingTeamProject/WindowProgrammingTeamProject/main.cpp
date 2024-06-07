@@ -126,6 +126,7 @@ vector<Bullet> g_bullets;
 
 void ProcessKeyboardDown(WPARAM wParam);
 void ProcessKeyboardUp(WPARAM wParam);
+void ProcessKeyboard();
 void DrawBg(HDC hDC, CImage Snowbg);
 void DrawBg(HDC hDC);
 void DrawSnowTile(HDC hDC, CImage tile);
@@ -189,6 +190,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
         //}
         TranslateMessage(&Message);
         DispatchMessage(&Message);
+        ProcessKeyboard();
     }
     return Message.wParam;
 }
@@ -289,9 +291,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
         SetTimer(hWnd, 1, 1000 / 60, (TIMERPROC)TimerProc);
         break;
-    case WM_COMMAND:
-        switch (LOWORD(wParam)) {}
-        break;
     case WM_CHAR:
         switch (wParam)
         {
@@ -321,7 +320,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         // 메모리 DC에서 화면 DC로 그림을 복사
         // #1 맵 전체를 그리기
         // BitBlt(hDC, 0, 0, BOARD_WIDTH, BOARD_HEIGHT, mDC, 0, 0, SRCCOPY);
-
         // #2 플레이어 주변의 영역을 윈도우 전체로 확대
         int stretchWidth = rt.right;
         int stretchHeight = rt.bottom;
@@ -341,12 +339,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         EndPaint(hWnd, &ps);
         break;
     }
+    /*
     case WM_KEYDOWN:
         ProcessKeyboardDown(wParam);
         break;
     case WM_KEYUP:
         ProcessKeyboardUp(wParam);
         break;
+    */
     case WM_DESTROY:
         Snowtile.Destroy();
         Snowbg.Destroy();
@@ -361,6 +361,43 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 }
 
 // 키입력
+void ProcessKeyboard() {
+    // 왼쪽 키 처리
+    if (GetAsyncKeyState(VK_LEFT) & 0x8000) { // 키가 눌린 상태
+        if (!g_player.isCharging) {
+            g_player.dx = -3;
+            g_player.face = "left";
+        }
+    }
+    else if (GetAsyncKeyState(VK_RIGHT) & 0x8000) { // 오른쪽 키 처리
+        if (!g_player.isCharging) {
+            g_player.dx = 3;
+            g_player.face = "right";
+        }
+    }
+    else {
+        g_player.dx = 0; // 왼쪽, 오른쪽 키가 모두 눌리지 않은 상태
+    }
+
+    // 스페이스 키 처리
+    if (GetAsyncKeyState(VK_SPACE) & 0x8000) { // 스페이스 키가 눌린 상태
+        if (!g_player.isJumping && g_player.dy == 0 && g_player.jumpSpeed > -20) {
+            g_player.isCharging = true;
+            g_player.dx = 0;
+            g_player.jumpSpeed -= 5;
+        }
+    }
+    else { // 스페이스 키가 눌리지 않은 상태
+        if (g_player.isCharging) {
+            g_player.dy = g_player.jumpSpeed;
+            g_player.jumpSpeed = 0;
+            g_player.isCharging = false;
+            g_player.isJumping = true;
+        }
+    }
+}
+
+/*
 void ProcessKeyboardDown(WPARAM wParam) {
     if (g_player.isSliding) return; // 미끄러지는 동안 입력 무시
     switch (wParam) {
@@ -402,7 +439,7 @@ void ProcessKeyboardUp(WPARAM wParam) {
         break;
     }
 }
-
+*/
 // 맵
 void DrawSnowTile(HDC hDC) {
     // 칸당 96x96
