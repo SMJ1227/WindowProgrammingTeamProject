@@ -137,29 +137,12 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Cannon.png" />
-    <Image Include="pCharge1.bmp" />
-    <Image Include="pCharge1_mask.bmp" />
-    <Image Include="pCharge2.bmp" />
-    <Image Include="pCharge2_mask.bmp" />
-    <Image Include="pFall.bmp" />
-    <Image Include="pFall_mask.bmp" />
-    <Image Include="pIdle.bmp" />
-    <Image Include="pIdle_mask.bmp" />
-    <Image Include="pJump1.bmp" />
-    <Image Include="pJump1_mask.bmp" />
-    <Image Include="PlayerSprite.png" />
+    <Image Include="desertbg_sand4.png" />
+    <Image Include="deserttiles.png" />
     <Image Include="PlayerSpriteFix.bmp" />
     <Image Include="PlayerSpriteFix_mask.bmp" />
-    <Image Include="pMove.bmp" />
-    <Image Include="pMove2.bmp" />
-    <Image Include="pMove2_mask.bmp" />
-    <Image Include="pMove_mask.bmp" />
-    <Image Include="pSlipped.bmp" />
-    <Image Include="pSlipped2.bmp" />
-    <Image Include="pSlipped2_mask.bmp" />
     <Image Include="SnowBg.png" />
     <Image Include="snowtile.png" />
-    <Image Include="tmw_desert_spacing.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
