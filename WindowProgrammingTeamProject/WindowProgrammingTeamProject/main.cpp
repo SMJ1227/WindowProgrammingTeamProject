@@ -169,6 +169,7 @@ struct Player {
     bool isJumping;
     bool isSliding;
     bool slip; // 미끄러지는 동안 계속 true
+    bool damaged;
     string face;// face: left, right  
 
 } g_player;
@@ -257,7 +258,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
         //}
         TranslateMessage(&Message);
         DispatchMessage(&Message);
-        ProcessKeyboard();
     }
     return Message.wParam;
 }
@@ -281,6 +281,7 @@ static int spriteHeight = 0;
 // 타이머 콜백
 void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
+    ProcessKeyboard();
     ApplyGravity();
     MovePlayer(map);
     MoveBullets();
@@ -448,26 +449,31 @@ void ProcessKeyboard() {
     // 왼쪽 키 처리
     if (GetAsyncKeyState(VK_LEFT) & 0x8000) { // 키가 눌린 상태
         if (!g_player.isCharging && !g_player.isSliding) {
+            if (g_player.damaged) { g_player.damaged = false; }
             g_player.dx = -3;
             g_player.face = "left";
         }
     }
     else if (GetAsyncKeyState(VK_RIGHT) & 0x8000) { // 오른쪽 키 처리
         if (!g_player.isCharging && !g_player.isSliding) {
+            if (g_player.damaged) { g_player.damaged = false; }
             g_player.dx = 3;
             g_player.face = "right";
         }
     }
     else {
-        g_player.dx = 0; // 왼쪽, 오른쪽 키가 모두 눌리지 않은 상태
+        if (!g_player.damaged) {
+            g_player.dx = 0; // 왼쪽, 오른쪽 키가 모두 눌리지 않은 상태 
+        }
     }
 
     // 스페이스 키 처리
     if (GetAsyncKeyState(VK_SPACE) & 0x8000) { // 스페이스 키가 눌린 상태
         if (!g_player.isJumping && g_player.dy == 0 && g_player.jumpSpeed > -20) {
+            if (g_player.damaged) { g_player.damaged = false; }
             g_player.isCharging = true;
             g_player.dx = 0;
-            g_player.jumpSpeed -= 5;
+            g_player.jumpSpeed -= 1;
         }
     }
     else { // 스페이스 키가 눌리지 않은 상태
@@ -610,6 +616,7 @@ void InitPlayer() {
     g_player.jumpSpeed = 0;
     g_player.isCharging = false;
     g_player.isJumping = false;
+    g_player.damaged = false;
     g_player.face = "left";
 }
 
@@ -651,7 +658,7 @@ void MovePlayer(int map[MAP_HEIGHT][MAP_WIDTH]) {
         g_player.isSliding = true;
 
         g_player.dy = 1; // 경사면 위에서 미끄러짐 속도
-        g_player.dx = 2; // 오른쪽 아래로 미끄러짐
+        g_player.dx = 3; // 오른쪽 아래로 미끄러짐
         newX = g_player.x + g_player.dx;
         newY = g_player.y + g_player.dy;
         g_player.x = newX;
@@ -662,7 +669,7 @@ void MovePlayer(int map[MAP_HEIGHT][MAP_WIDTH]) {
         g_player.isSliding = true;
 
         g_player.dy = 1; // 경사면 위에서 미끄러짐 속도
-        g_player.dx = -2; // 오른쪽 아래로 미끄러짐
+        g_player.dx = -3; // 오른쪽 아래로 미끄러짐
         newX = g_player.x + g_player.dx;
         newY = g_player.y + g_player.dy;
         g_player.x = newX;
@@ -820,7 +827,7 @@ void DrawBullets(HDC hdc) {
     SelectObject(hdc, hBrush);
     for (const auto& bullet : g_bullets) {
         if (bullet.x >= 0 && bullet.x <= BOARD_WIDTH && bullet.y >= 0 && bullet.y <= BOARD_HEIGHT) {
-            Ellipse(hdc, bullet.x - 10, bullet.y - 10, bullet.x + 10, bullet.y + 10);
+            Ellipse(hdc, bullet.x - 20, bullet.y - 20, bullet.x + 20, bullet.y + 20);
         }
     }
     DeleteObject(hBrush);
@@ -868,15 +875,15 @@ void CheckItemPlayerCollisions() {
 
 void CheckPlayerBulletCollisions() {
     for (auto it = g_bullets.begin(); it != g_bullets.end(); ) {
-        if (it->x >= g_player.x - PLAYER_SIZE / 2 && it->x <= g_player.x + PLAYER_SIZE / 2 &&
-            it->y >= g_player.y - PLAYER_SIZE / 2 && it->y <= g_player.y + PLAYER_SIZE / 2) {
+        if (it->x >= g_player.x - PLAYER_SIZE && it->x <= g_player.x + PLAYER_SIZE &&
+            it->y >= g_player.y - PLAYER_SIZE && it->y <= g_player.y + PLAYER_SIZE) {
             // 플레이어를 뒤로 밀침
             g_player.dx = it->dx * 2;
             g_player.isCharging = false;
             g_player.jumpSpeed = 0;
+            g_player.damaged = true;
             // 플레이어와 충돌 시 제거
             it = g_bullets.erase(it);
-
         }
         else {
             ++it;
