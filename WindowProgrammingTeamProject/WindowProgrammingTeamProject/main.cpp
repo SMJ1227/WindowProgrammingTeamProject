@@ -30,11 +30,11 @@ int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0},
     {0, 1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 0},
     {0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0},
-    {0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0},
+    {0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0},
     {0, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 3, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0},
     {0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
@@ -45,11 +45,45 @@ int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 2, 1, 1, 1, 1, 1, 5, 1, 1, 1, 0},
     {0, 0, 2, 1, 1, 1, 1, 0, 1, 1, 3, 0},
     {0, 0, 0, 2, 1, 1, 1, 1, 1, 3, 0, 0},
     {0, 4, 0, 0, 2, 1, 1, 1, 3, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+};
+int tile_num = 0;
+int tile0[MAP_HEIGHT][MAP_WIDTH] = {
+    {1, 2, 2, 2, 2, 18, 18, 2, 2, 2, 2, 3},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 14, 15, 16, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 1, 0, 0, 0, 0, 0, 0, 10, 6},
+    {4, 0, 0, 4, 12, 0, 0, 0, 0, 10, 11, 6},
+    {4, 0, 0, 4, 13, 3, 0, 0, 0, 7, 8, 6},
+    {4, 0, 0, 4,  5, 13, 12, 0, 0, 0, 0, 6},
+    {4, 0, 0, 4,  5,  5, 13, 3, 0, 0, 0, 6},
+    {4, 0, 0, 7,  8,  8,  8, 9, 15, 0, 0, 6},
+    {4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 14, 15, 15, 16, 0, 15, 0, 0, 0, 10, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 6},
+    {4, 0, 0, 15, 0, 15, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 15, 0, 0, 0, 0, 15, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+    {4, 13, 12, 0, 0, 0, 0, 15, 0, 0, 10, 6},
+    {4, 5, 13, 12, 0, 0, 0, 0, 0, 10, 11, 6},
+    {4, 0, 5, 13, 12, 0, 0, 0, 10, 11, 5, 6},
+    {17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17},
 };
 int map1[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -83,40 +117,6 @@ int map1[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0},
     {0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-};
-int tile_num = 0;
-int tile0[MAP_HEIGHT][MAP_WIDTH] = {
-    {1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3},
-    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 0, 0, 0, 0, 14, 15, 16, 0, 0, 0, 6},
-    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 0, 0, 1, 0, 0, 0, 0, 0, 0, 10, 6},
-    {4, 0, 0, 4, 12, 0, 0, 0, 0, 10, 11, 6},
-    {4, 0, 0, 4, 13, 3, 0, 0, 0, 7, 8, 6},
-    {4, 0, 0, 4,  5, 13, 12, 0, 0, 0, 0, 6},
-    {4, 0, 0, 4,  5,  5, 13, 3, 0, 0, 0, 6},
-    {4, 0, 0, 7,  8,  8,  8, 9, 0, 0, 0, 6},
-    {4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 14, 15, 15, 16, 0, 15, 0, 0, 0, 10, 6},
-    {4, 0, 0, 0, 0, 0, 0, 0, 15, 0, 11, 6},
-    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 0, 0, 15, 0, 15, 0, 0, 0, 0, 0, 6},
-    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 0, 0, 15, 0, 0, 0, 0, 15, 0, 0, 6},
-    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 6},
-    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 13, 12, 0, 0, 0, 0, 15, 0, 0, 10, 6},
-    {4, 5, 13, 12, 0, 0, 0, 0, 0, 10, 11, 6},
-    {4, 0, 5, 13, 12, 0, 0, 0, 10, 11, 5, 6},
-    {17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17},
 };
 int tile1[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2},
@@ -171,7 +171,7 @@ struct Player {
     bool slip; // 미끄러지는 동안 계속 true
     bool damaged;
     string face;// face: left, right  
-
+    bool EnhancedJumpPower;
 } g_player;
 
 struct Item {
@@ -205,8 +205,9 @@ bool IsColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y);
 bool IsSlopeGoRightColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y);
 bool IsSlopeGoLeftColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y);
 bool IsNextColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y);
+void InitItems(int map[MAP_HEIGHT][MAP_WIDTH]);
 void GenerateItem(int x, int y, int num);
-void DrawItems(HDC hDC);
+void DrawItem(HDC hDC);
 void InitEnemy(int map[MAP_HEIGHT][MAP_WIDTH]);
 void GenerateEnemy(int x, int y);
 void DrawEnemies(HDC hDC);
@@ -268,6 +269,8 @@ CImage Snowbg;
 CImage Desertbg;
 CImage Deserttile;
 CImage cannon;
+CImage item_EnhanceJump;
+CImage portal;
 HBITMAP spriteSheet;
 HBITMAP spriteSheetMask;
 
@@ -369,6 +372,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         cannon.Load(L"Cannon.png");
         Desertbg.Load(L"desertbg_sand4.png");
         Deserttile.Load(L"deserttiles.png");
+        item_EnhanceJump.Load(L"wing.png");
+        portal.Load(L"portal.png");
         spriteSheet = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE));
         spriteSheetMask = (HBITMAP)LoadBitmap(g_hInst, MAKEINTRESOURCE(PLAYER_SPRITE_MASK));
 
@@ -403,7 +408,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         DrawEnemies(mDC);
         DrawBullets(mDC);
         DrawSprite(mDC, spriteX, spriteY, spriteWidth, spriteHeight);
-
+        DrawItem(mDC);
 
         // 메모리 DC에서 화면 DC로 그림을 복사
         // #1 맵 전체를 그리기
@@ -433,6 +438,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         cannon.Destroy();
         Desertbg.Destroy();
         Deserttile.Destroy();
+        item_EnhanceJump.Destroy();
+        portal.Destroy();
         DeleteObject(spriteSheet);
         DeleteObject(spriteSheetMask);
         KillTimer(hWnd, 1);
@@ -446,7 +453,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 // 키입력
 void ProcessKeyboard() {
-    // 왼쪽 키 처리
+    // 키 처리
     if (GetAsyncKeyState(VK_LEFT) & 0x8000) { // 키가 눌린 상태
         if (!g_player.isCharging && !g_player.isSliding) {
             if (g_player.damaged) { g_player.damaged = false; }
@@ -474,6 +481,9 @@ void ProcessKeyboard() {
             g_player.isCharging = true;
             g_player.dx = 0;
             g_player.jumpSpeed -= 1;
+            if (g_player.EnhancedJumpPower == 1) {
+                g_player.jumpSpeed = -50;
+            }
         }
     }
     else { // 스페이스 키가 눌리지 않은 상태
@@ -482,6 +492,9 @@ void ProcessKeyboard() {
             g_player.jumpSpeed = 0;
             g_player.isCharging = false;
             g_player.isJumping = true;
+            if (g_player.EnhancedJumpPower == 1) {
+                g_player.EnhancedJumpPower = 0;
+            }
         }
     }
 }
@@ -544,6 +557,9 @@ void DrawSnowTile(HDC hDC) {
             case 17:
                 Snowtile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 96 * 8, 0, 96, 96);
                 break;
+            case 18:
+                portal.TransparentBlt(hDC, x * GRID, y * GRID, GRID, GRID, RGB(0, 255, 0));
+                break;
             }
         }
     }
@@ -589,6 +605,9 @@ void DrawDesertTile(HDC hDC) {
                 break;
             case 12:
                 Deserttile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 32 * 1, 0, 32, 32);
+                break;
+            case 13:
+                portal.TransparentBlt(hDC, x * GRID, y * GRID, GRID, GRID, RGB(0, 255, 0));
                 break;
             }
         }
@@ -754,21 +773,30 @@ bool IsNextColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y) {
 }
 
 // 아이템
+void InitItems(int map[MAP_HEIGHT][MAP_WIDTH]) {
+    for (int y = 0; y < MAP_HEIGHT; y++) {
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            if (map[y][x] == 5) {
+                GenerateItem(x, y, 0);
+            }
+        }
+    }
+}
+
 void GenerateItem(int x, int y, int num) {
     Item newItem;
     newItem.x = x;
     newItem.y = y;
+    newItem.type = num;
     g_items.push_back(newItem);
 }
 
-void DrawItems(HDC hdc) {
+void DrawItem(HDC hDC) {
     for (const auto& item : g_items) {
-        HBRUSH hBrush1 = CreateSolidBrush(RGB(255, 255, 255));
-        SelectObject(hdc, hBrush1);
-        Rectangle(hdc, item.x * GRID, item.y * GRID, (item.x + 1) * GRID, (item.y + 1) * GRID); // 아이템 그리기
-        DeleteObject(hBrush1);
+        item_EnhanceJump.TransparentBlt(hDC, item.x * GRID, item.y * GRID, GRID, GRID, RGB(0, 255, 0));
     }
 }
+
 
 // 적
 void InitEnemy(int map[MAP_HEIGHT][MAP_WIDTH]) {
@@ -839,7 +867,7 @@ void DeleteAllBullets() {
 
 // 충돌 확인 함수
 void CheckCollisions() {
-    //CheckItemPlayerCollisions();
+    CheckItemPlayerCollisions();
     CheckPlayerBulletCollisions();
     CheckEnemyPlayerCollisions();
 }
@@ -862,9 +890,11 @@ void CheckEnemyPlayerCollisions() {
 
 void CheckItemPlayerCollisions() {
     for (auto it = g_items.begin(); it != g_items.end(); ) {
-        if (it->x >= g_player.x - PLAYER_SIZE / 2 && it->x <= g_player.x + PLAYER_SIZE / 2 &&
-            it->y >= g_player.y - PLAYER_SIZE / 2 && it->y <= g_player.y + PLAYER_SIZE / 2) {
-            // 아이템과 충돌 시 제거
+        if (g_player.x >= it->x * GRID && g_player.x <= (it->x + 1) * GRID &&
+            g_player.y >= it->y * GRID && g_player.y <= (it->y + 1) * GRID) {
+            if ((*it).type == 0) {
+                g_player.EnhancedJumpPower = true;
+            }
             it = g_items.erase(it);
         }
         else {
