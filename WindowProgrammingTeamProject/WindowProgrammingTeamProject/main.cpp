@@ -23,10 +23,10 @@ int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 3, 0},
-    {0, 1, 1, 0, 2, 1, 1, 1, 1, 3, 0, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0},
+    {0, 1, 1, 3, 2, 1, 1, 1, 1, 3, 0, 0},
     {0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0},
     {0, 1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 0},
     {0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0},
@@ -59,8 +59,8 @@ int tile0[MAP_HEIGHT][MAP_WIDTH] = {
     {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
     {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
     {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 0, 0, 1, 0, 0, 0, 0, 0, 0, 10, 6},
-    {4, 0, 0, 4, 12, 0, 0, 0, 0, 10, 11, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 6},
+    {4, 0, 0, 10, 12, 0, 0, 0, 0, 10, 11, 6},
     {4, 0, 0, 4, 13, 3, 0, 0, 0, 7, 8, 6},
     {4, 0, 0, 4,  5, 13, 12, 0, 0, 0, 0, 6},
     {4, 0, 0, 4,  5,  5, 13, 3, 0, 0, 0, 6},
@@ -177,6 +177,8 @@ struct Player {
 struct Item {
     int x, y;
     int type;
+    int interval;
+    bool disable;
 };
 vector<Item> g_items;
 
@@ -289,6 +291,14 @@ void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
     MovePlayer(map);
     MoveBullets();
     shootInterval++;
+    for (auto& item : g_items) {
+        if (item.interval <= 0) {
+            item.disable = false;
+        }
+        else {
+            item.interval--;
+        }
+    }
     if (shootInterval > 120) {
         ShootBullet();
         shootInterval = 0;
@@ -664,6 +674,9 @@ void MovePlayer(int map[MAP_HEIGHT][MAP_WIDTH]) {
     // 수직 충돌 처리
     if (!isVerticalCollision) {
         g_player.y = newY;
+        if (!g_player.EnhancedJumpPower) {
+            g_player.isJumping = true;
+        }
     }
     else {
         // 바닥 충돌 시 y축 위치 보정
@@ -800,12 +813,14 @@ void GenerateItem(int x, int y, int num) {
     newItem.x = x;
     newItem.y = y;
     newItem.type = num;
+    newItem.interval = 1;
+    newItem.disable = true;
     g_items.push_back(newItem);
 }
 
 void DrawItem(HDC hDC) {
     for (const auto& item : g_items) {
-        item_EnhanceJump.TransparentBlt(hDC, item.x * GRID, item.y * GRID, GRID, GRID, RGB(0, 255, 0));
+        if (!item.disable) { item_EnhanceJump.TransparentBlt(hDC, item.x * GRID, item.y * GRID, GRID, GRID, RGB(0, 255, 0)); }
     }
 }
 
@@ -905,12 +920,11 @@ void CheckItemPlayerCollisions() {
             if ((*it).type == 0) {
                 g_player.EnhancedJumpPower = true;
                 g_player.isJumping = false;
+                it->disable = true;
+                it->interval = 60;
             }
-            it = g_items.erase(it);
         }
-        else {
-            ++it;
-        }
+        ++it;
     }
 }
 
