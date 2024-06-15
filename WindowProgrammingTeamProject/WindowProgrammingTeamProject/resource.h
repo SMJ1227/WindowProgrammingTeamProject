@@ -11,7 +11,6 @@
 #define IDB_PNG7                        127
 #define IDB_PNG1                        128
 #define IDB_PNG5                        129
-#define IDB_PNG8                        130
 #define IDB_PNG9                        131
 #define IDB_PNG10                       132
 
