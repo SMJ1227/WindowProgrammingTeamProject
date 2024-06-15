@@ -46,7 +46,7 @@ int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 2, 1, 1, 1, 1, 1, 5, 1, 1, 1, 0},
-    {0, 0, 2, 1, 1, 1, 1, 0, 1, 1, 3, 0},
+    {0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 3, 0},
     {0, 0, 0, 2, 1, 1, 1, 1, 1, 3, 0, 0},
     {0, 4, 0, 0, 2, 1, 1, 1, 3, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -80,7 +80,7 @@ int tile0[MAP_HEIGHT][MAP_WIDTH] = {
     {4, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 6},
     {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
     {4, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 13, 12, 0, 0, 0, 0, 15, 0, 0, 10, 6},
+    {4, 13, 12, 0, 0, 0, 0, 0, 0, 0, 10, 6},
     {4, 5, 13, 12, 0, 0, 0, 0, 0, 10, 11, 6},
     {4, 0, 5, 13, 12, 0, 0, 0, 10, 11, 5, 6},
     {17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17},
@@ -453,6 +453,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 }
 
 // 키입력
+bool spaceKeyReleased = true;
 void ProcessKeyboard() {
     // 키 처리
     if (GetAsyncKeyState(VK_LEFT) & 0x8000) { // 키가 눌린 상태
@@ -486,7 +487,8 @@ void ProcessKeyboard() {
 
     // 스페이스 키 처리
     if (GetAsyncKeyState(VK_SPACE) & 0x8000) { // 스페이스 키가 눌린 상태
-        if (!g_player.isJumping && g_player.dy == 0 && g_player.jumpSpeed > -20) {
+        spaceKeyReleased = false;
+        if (!g_player.isJumping && g_player.jumpSpeed > -20) {
             if (g_player.damaged) { g_player.damaged = false; }
             g_player.isCharging = true;
             g_player.dx = 0;
@@ -497,7 +499,7 @@ void ProcessKeyboard() {
         }
     }
     else { // 스페이스 키가 눌리지 않은 상태
-        if (g_player.isCharging) {
+        if (!spaceKeyReleased && g_player.isCharging) {
             g_player.dy = g_player.jumpSpeed;
             g_player.jumpSpeed = 0;
             g_player.isCharging = false;
@@ -505,6 +507,7 @@ void ProcessKeyboard() {
             if (g_player.EnhancedJumpPower == 1) {
                 g_player.EnhancedJumpPower = 0;
             }
+            spaceKeyReleased = true;
         }
     }
 }
@@ -661,7 +664,6 @@ void MovePlayer(int map[MAP_HEIGHT][MAP_WIDTH]) {
     // 수직 충돌 처리
     if (!isVerticalCollision) {
         g_player.y = newY;
-        g_player.isJumping = true;
     }
     else {
         // 바닥 충돌 시 y축 위치 보정
