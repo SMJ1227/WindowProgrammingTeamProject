@@ -6,7 +6,7 @@
 #include <atlImage.h>
 #include "resource.h"
 
-const int WINDOW_WIDTH = 600;
+const int WINDOW_WIDTH = 480;
 const int WINDOW_HEIGHT = 600;
 const int GRID = 40;
 const int MAP_WIDTH = 13;
@@ -18,15 +18,16 @@ const double M_PI = 3.141592;
 const int GRAVITY = 1; // 중력 상수
 
 int map_num = 0;
+int tile_num = 0;
 int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 1, 1, 1, 1, 1, 1, 6, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 3, 0},
-    {0, 1, 1, 0, 2, 1, 1, 1, 1, 3, 0, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0},
+    {0, 1, 1, 3, 2, 1, 1, 1, 1, 3, 0, 0},
     {0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0},
     {0, 1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 0},
     {0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0},
@@ -46,12 +47,11 @@ int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 2, 1, 1, 1, 1, 1, 5, 1, 1, 1, 0},
-    {0, 0, 2, 1, 1, 1, 1, 0, 1, 1, 3, 0},
+    {0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 3, 0},
     {0, 0, 0, 2, 1, 1, 1, 1, 1, 3, 0, 0},
     {0, 4, 0, 0, 2, 1, 1, 1, 3, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
-int tile_num = 0;
 int tile0[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3},
     {4, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 6},
@@ -59,8 +59,8 @@ int tile0[MAP_HEIGHT][MAP_WIDTH] = {
     {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
     {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
     {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 0, 0, 1, 0, 0, 0, 0, 0, 0, 10, 6},
-    {4, 0, 0, 4, 12, 0, 0, 0, 0, 10, 11, 6},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 6},
+    {4, 0, 0, 10, 12, 0, 0, 0, 0, 10, 11, 6},
     {4, 0, 0, 4, 13, 3, 0, 0, 0, 7, 8, 6},
     {4, 0, 0, 4,  5, 13, 12, 0, 0, 0, 0, 6},
     {4, 0, 0, 4,  5,  5, 13, 3, 0, 0, 0, 6},
@@ -80,7 +80,7 @@ int tile0[MAP_HEIGHT][MAP_WIDTH] = {
     {4, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 6},
     {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
     {4, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
-    {4, 13, 12, 0, 0, 0, 0, 15, 0, 0, 10, 6},
+    {4, 13, 12, 0, 0, 0, 0, 0, 0, 0, 10, 6},
     {4, 5, 13, 12, 0, 0, 0, 0, 0, 10, 11, 6},
     {4, 0, 5, 13, 12, 0, 0, 0, 10, 11, 5, 6},
     {17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17},
@@ -151,6 +151,72 @@ int tile1[MAP_HEIGHT][MAP_WIDTH] = {
     {7, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 8},
     {3, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4}
 };
+int map2[MAP_HEIGHT][MAP_WIDTH] = {
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 0},
+    {0, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 0},
+    {0, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 0},
+    {0, 1, 5, 1, 1, 1, 1, 1, 1, 3, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 0},
+    {0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {4, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0},
+    {4, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0},
+    {0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 5, 0},
+    {4, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0},
+    {0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 3, 0},
+    {0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+};
+int tile2[MAP_HEIGHT][MAP_WIDTH] = {
+    {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 3, 1, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2},
+    {2, 0, 0, 3, 0, 0, 0, 2, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2},
+    {2, 3, 0, 0, 0, 0, 0, 2, 0, 0, 5, 2},
+    {2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+};
 
 using namespace std;
 
@@ -177,6 +243,8 @@ struct Player {
 struct Item {
     int x, y;
     int type;
+    int interval;
+    bool disable;
 };
 vector<Item> g_items;
 
@@ -196,6 +264,8 @@ void DrawSnowBg(HDC hDC);
 void DrawDesertBg(HDC hDC);
 void DrawSnowTile(HDC hDC);
 void DrawDesertTile(HDC hDC);
+void DrawForestBg(HDC hDC);
+void DrawForestTile(HDC hDC);
 void InitMap(int dst[MAP_HEIGHT][MAP_WIDTH], int src[MAP_HEIGHT][MAP_WIDTH]);
 void InitPlayer();
 void MovePlayer(int map[MAP_HEIGHT][MAP_WIDTH]);
@@ -269,6 +339,8 @@ CImage Snowtile;
 CImage Snowbg;
 CImage Desertbg;
 CImage Deserttile;
+CImage Forestbg;
+CImage Foresttile;
 CImage cannon;
 CImage item_EnhanceJump;
 CImage portal;
@@ -302,19 +374,31 @@ void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
     MovePlayer(map);
     MoveBullets();
     shootInterval++;
+    for (auto& item : g_items) {
+        if (item.interval <= 0) {
+            item.disable = false;
+        }
+        else {
+            item.interval--;
+        }
+    }
     if (shootInterval > 120) {
         ShootBullet();
         shootInterval = 0;
     }
     if (IsNextColliding(map, g_player.x, g_player.y) == true) {
+        if (map_num == 1) InitMap(map, map1);
+        else if (map_num == 2) InitMap(map, map2);
         InitPlayer();
-        InitMap(map, map1);
         DeleteAllEnemies();
         DeleteAllBullets();
+        DeleteAllItems();
         InitEnemy(map);
         InitItems(map);
-        if (map_num++ == 3) KillTimer(hWnd, 1);     
+        if (map_num++ == 4) KillTimer(hWnd, 1);
+
     }
+
     CheckCollisions();
     if (g_player.dx < 0) g_player.face = "left";
     else if (g_player.dx > 0) g_player.face = "right";
@@ -383,6 +467,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         cannon.Load(L"Cannon.png");
         Desertbg.Load(L"desertbg_sand4.png");
         Deserttile.Load(L"deserttiles.png");
+        Forestbg.Load(L"forestbg2.png");
+        Foresttile.Load(L"foresttiles2.png");
         item_EnhanceJump.Load(L"wing.png");
         portal.Load(L"portal.png");
         startImage.Load(L"start_title.png");
@@ -411,7 +497,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         SelectObject(mDC, (HBITMAP)hBitmap);
 
         //--- 모든 그리기를 메모리 DC에한다.  ---> 바꾼 부분: CImage 변수는 전역변수로 선언하여 함수의 인자로 보내지 않도록 한다.
-        if (map_num == 0)startImage.Draw(mDC, 0, 0, GRID * 13, GRID * 15);
+        if (map_num == 0)startImage.Draw(mDC, 0, 0, GRID * 12, GRID * 15);
         else if (map_num == 1) {
             DrawSnowBg(mDC);
             DrawSnowTile(mDC);
@@ -429,7 +515,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             DrawItem(mDC);
         }
         else if (map_num == 3) {
-           endImage.Draw(mDC, BOARD_WIDTH -GRID*13, BOARD_HEIGHT - GRID* 17, GRID * 13, GRID * 15);
+            DrawForestBg(mDC);
+            DrawForestTile(mDC);
+            DrawEnemies(mDC);
+            DrawBullets(mDC);
+            DrawSprite(mDC, spriteX, spriteY, spriteWidth, spriteHeight);
+            DrawItem(mDC);
+        }
+        else if (map_num == 4) {
+           endImage.Draw(mDC, BOARD_WIDTH -GRID*13, BOARD_HEIGHT - GRID* 17, GRID * 12, GRID * 15);
         }
         
 
@@ -461,6 +555,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         cannon.Destroy();
         Desertbg.Destroy();
         Deserttile.Destroy();
+        Forestbg.Destroy();
+        Foresttile.Destroy();
         item_EnhanceJump.Destroy();
         portal.Destroy();
         startImage.Destroy();
@@ -477,42 +573,53 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 }
 
 // 키입력
+bool spaceKeyReleased = true;
 void ProcessKeyboard() {
     // 키 처리
     if (GetAsyncKeyState(VK_LEFT) & 0x8000) { // 키가 눌린 상태
         if (!g_player.isCharging && !g_player.isSliding) {
-            if (g_player.damaged) { g_player.damaged = false; }
-            g_player.dx = -3;
+            if (g_player.damaged) { return; }
             g_player.face = "left";
+            if (g_player.dx >= -3) {
+                g_player.dx += -1;
+            }
         }
     }
     else if (GetAsyncKeyState(VK_RIGHT) & 0x8000) { // 오른쪽 키 처리
         if (!g_player.isCharging && !g_player.isSliding) {
-            if (g_player.damaged) { g_player.damaged = false; }
-            g_player.dx = 3;
+            if (g_player.damaged) { return; }
             g_player.face = "right";
+            if (g_player.dx <= 3) {
+                g_player.dx += 1;
+            }
         }
     }
     else {
-        if (!g_player.damaged) {
-            g_player.dx = 0; // 왼쪽, 오른쪽 키가 모두 눌리지 않은 상태 
+        if (!g_player.damaged && !g_player.isSliding) {
+            if (g_player.dx > 0) {
+                g_player.dx -= 1; // 왼쪽, 오른쪽 키가 모두 눌리지 않은 상태 
+            }
+            else if (g_player.dx < 0) {
+                g_player.dx += 1; // 왼쪽, 오른쪽 키가 모두 눌리지 않은 상태 
+            }
         }
     }
 
     // 스페이스 키 처리
     if (GetAsyncKeyState(VK_SPACE) & 0x8000) { // 스페이스 키가 눌린 상태
-        if (!g_player.isJumping && g_player.dy == 0 && g_player.jumpSpeed > -20) {
+        spaceKeyReleased = false;
+        if (!g_player.isJumping && g_player.jumpSpeed > -20) {
             if (g_player.damaged) { g_player.damaged = false; }
             g_player.isCharging = true;
             g_player.dx = 0;
             g_player.jumpSpeed -= 1;
             if (g_player.EnhancedJumpPower == 1) {
-                g_player.jumpSpeed = -50;
+                g_player.jumpSpeed = -20;
             }
         }
     }
     else { // 스페이스 키가 눌리지 않은 상태
-        if (g_player.isCharging) {
+        if (!spaceKeyReleased && g_player.isCharging) {
             g_player.dy = g_player.jumpSpeed;
             g_player.jumpSpeed = 0;
             g_player.isCharging = false;
@@ -520,9 +627,9 @@ void ProcessKeyboard() {
             if (g_player.EnhancedJumpPower == 1) {
                 g_player.EnhancedJumpPower = 0;
             }
+            spaceKeyReleased = true;
         }
     }
-
 }
 
 // 맵
@@ -645,6 +752,38 @@ void DrawSnowBg(HDC hDC) {
 void DrawDesertBg(HDC hDC) {
     Desertbg.StretchBlt(hDC, -GRID / 2, 0, BOARD_WIDTH, BOARD_HEIGHT, SRCCOPY);
 }
+void DrawForestBg(HDC hDC) {
+    Forestbg.StretchBlt(hDC, -GRID / 2, 0, BOARD_WIDTH, BOARD_HEIGHT, SRCCOPY);
+}
+
+void DrawForestTile(HDC hDC) {
+    // 칸당 64x64
+    for (int y = 0; y < MAP_HEIGHT; y++) {
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            int tileType = tile2[y][x];
+            switch (tileType) {
+            case 1:
+                Foresttile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 64, 64, 64);
+				break;
+            case 2:
+                Foresttile.Draw(hDC, x * GRID, y * GRID, GRID, GRID, 0, 192, 64, 64);
+            	break;
+            case 3:
+                Foresttile.TransparentBlt(hDC, x * GRID, y * GRID, GRID, GRID, 192, 64, 64, 64, RGB(255, 255, 255));
+            	break;
+            case 4:
+                Foresttile.TransparentBlt(hDC, x * GRID, y * GRID, GRID, GRID, 256, 0, 64, 64, RGB(255, 255, 255));
+                break;
+            case 5:
+                Foresttile.TransparentBlt(hDC, x * GRID, y * GRID, GRID, GRID, 256, 65, 64, 64, RGB(255, 255, 255));
+                break;
+            case 6:
+                portal.TransparentBlt(hDC, x * GRID, y * GRID, GRID, GRID, RGB(0, 255, 0));
+                break;
+            }
+        }
+    }
+}
 void InitMap(int dst[MAP_HEIGHT][MAP_WIDTH], int src[MAP_HEIGHT][MAP_WIDTH]) {
     for (int i = 0; i < MAP_HEIGHT; i++) {
         for (int j = 0; j < MAP_WIDTH; j++) {
@@ -677,7 +816,9 @@ void MovePlayer(int map[MAP_HEIGHT][MAP_WIDTH]) {
     // 수직 충돌 처리
     if (!isVerticalCollision) {
         g_player.y = newY;
-        g_player.isJumping = true;
+        if (!g_player.EnhancedJumpPower) {
+            g_player.isJumping = true;
+        }
     }
     else {
         // 바닥 충돌 시 y축 위치 보정
@@ -814,12 +955,14 @@ void GenerateItem(int x, int y, int num) {
     newItem.x = x;
     newItem.y = y;
     newItem.type = num;
+    newItem.interval = 1;
+    newItem.disable = true;
     g_items.push_back(newItem);
 }
 
 void DrawItem(HDC hDC) {
     for (const auto& item : g_items) {
-        item_EnhanceJump.TransparentBlt(hDC, item.x * GRID, item.y * GRID, GRID, GRID, RGB(0, 255, 0));
+        if (!item.disable) { item_EnhanceJump.TransparentBlt(hDC, item.x * GRID, item.y * GRID, GRID, GRID, RGB(0, 255, 0)); }
     }
 }
 
@@ -921,12 +1064,12 @@ void CheckItemPlayerCollisions() {
             g_player.y >= it->y * GRID && g_player.y <= (it->y + 1) * GRID) {
             if ((*it).type == 0) {
                 g_player.EnhancedJumpPower = true;
+                g_player.isJumping = false;
+                it->disable = true;
+                it->interval = 60;
             }
-            it = g_items.erase(it);
         }
-        else {
-            ++it;
-        }
+        ++it;
     }
 }
 
