@@ -137,12 +137,15 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Cannon.png" />
+    <Image Include="clear.png" />
     <Image Include="desertbg_sand4.png" />
     <Image Include="deserttiles.png" />
     <Image Include="PlayerSpriteFix.bmp" />
     <Image Include="PlayerSpriteFix_mask.bmp" />
     <Image Include="SnowBg.png" />
     <Image Include="snowtile.png" />
+    <Image Include="start2.png" />
+    <Image Include="start_title.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
