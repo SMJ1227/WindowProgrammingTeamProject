@@ -367,6 +367,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         InitPlayer();
         InitMap(map, map0);
         InitEnemy(map0);
+        InitItems(map0);
         Snowtile.Load(L"snowtile.png");
         Snowbg.Load(L"SnowBg.png");
         cannon.Load(L"Cannon.png");
@@ -456,21 +457,30 @@ void ProcessKeyboard() {
     // 키 처리
     if (GetAsyncKeyState(VK_LEFT) & 0x8000) { // 키가 눌린 상태
         if (!g_player.isCharging && !g_player.isSliding) {
-            if (g_player.damaged) { g_player.damaged = false; }
-            g_player.dx = -3;
+            if (g_player.damaged) { return; }
             g_player.face = "left";
+            if (g_player.dx >= -3) { 
+                g_player.dx += -1;
+            }
         }
     }
     else if (GetAsyncKeyState(VK_RIGHT) & 0x8000) { // 오른쪽 키 처리
         if (!g_player.isCharging && !g_player.isSliding) {
-            if (g_player.damaged) { g_player.damaged = false; }
-            g_player.dx = 3;
+            if (g_player.damaged) { return; }
             g_player.face = "right";
+            if (g_player.dx <= 3) {
+                g_player.dx += 1;
+            }
         }
     }
     else {
-        if (!g_player.damaged) {
-            g_player.dx = 0; // 왼쪽, 오른쪽 키가 모두 눌리지 않은 상태 
+        if (!g_player.damaged && !g_player.isSliding) {
+            if (g_player.dx > 0) {
+                g_player.dx -= 1; // 왼쪽, 오른쪽 키가 모두 눌리지 않은 상태 
+            }
+            else if (g_player.dx < 0) {
+                g_player.dx += 1; // 왼쪽, 오른쪽 키가 모두 눌리지 않은 상태 
+            }
         }
     }
 
@@ -482,7 +492,7 @@ void ProcessKeyboard() {
             g_player.dx = 0;
             g_player.jumpSpeed -= 1;
             if (g_player.EnhancedJumpPower == 1) {
-                g_player.jumpSpeed = -50;
+                g_player.jumpSpeed = -20;
             }
         }
     }
@@ -797,7 +807,6 @@ void DrawItem(HDC hDC) {
     }
 }
 
-
 // 적
 void InitEnemy(int map[MAP_HEIGHT][MAP_WIDTH]) {
     for (int y = 0; y < MAP_HEIGHT; y++) {
@@ -887,13 +896,13 @@ void CheckEnemyPlayerCollisions() {
     }
 }
 
-
 void CheckItemPlayerCollisions() {
     for (auto it = g_items.begin(); it != g_items.end(); ) {
         if (g_player.x >= it->x * GRID && g_player.x <= (it->x + 1) * GRID &&
             g_player.y >= it->y * GRID && g_player.y <= (it->y + 1) * GRID) {
             if ((*it).type == 0) {
                 g_player.EnhancedJumpPower = true;
+                g_player.isJumping = false;
             }
             it = g_items.erase(it);
         }
