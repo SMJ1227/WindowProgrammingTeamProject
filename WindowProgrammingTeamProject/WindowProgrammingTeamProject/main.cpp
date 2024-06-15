@@ -6,7 +6,7 @@
 #include <atlImage.h>
 #include "resource.h"
 
-const int WINDOW_WIDTH = 600;
+const int WINDOW_WIDTH = 480;
 const int WINDOW_HEIGHT = 600;
 const int GRID = 40;
 const int MAP_WIDTH = 13;
@@ -88,11 +88,11 @@ int tile0[MAP_HEIGHT][MAP_WIDTH] = {
 int map1[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 6, 6, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
@@ -121,7 +121,7 @@ int map1[MAP_HEIGHT][MAP_WIDTH] = {
 int tile1[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2},
     {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
-    {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
+    {7, 0, 0, 0, 0, 13, 13, 0, 0, 0, 0, 8},
     {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
     {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
     {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8},
@@ -151,7 +151,39 @@ int tile1[MAP_HEIGHT][MAP_WIDTH] = {
     {7, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 8},
     {3, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4}
 };
-
+int map2[MAP_HEIGHT][MAP_WIDTH] = {
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+};
 using namespace std;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -210,6 +242,7 @@ bool IsNextColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y);
 void InitItems(int map[MAP_HEIGHT][MAP_WIDTH]);
 void GenerateItem(int x, int y, int num);
 void DrawItem(HDC hDC);
+void DeleteAllItems();
 void InitEnemy(int map[MAP_HEIGHT][MAP_WIDTH]);
 void GenerateEnemy(int x, int y);
 void DrawEnemies(HDC hDC);
@@ -304,12 +337,24 @@ void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
         shootInterval = 0;
     }
     if (IsNextColliding(map, g_player.x, g_player.y) == true) {
-        InitPlayer();
-        InitMap(map, map1);
-        DeleteAllEnemies();
-        DeleteAllBullets();
-        InitEnemy(map);
-        map_num++;
+        if (map_num == 0) {
+            InitPlayer();
+            InitMap(map, map1);
+            DeleteAllEnemies();
+            DeleteAllBullets();
+            DeleteAllItems();
+            InitEnemy(map);
+            InitItems(map);
+            map_num++;
+        }
+        else if (map_num == 1) {
+            InitPlayer();
+            InitMap(map, map2);
+            DeleteAllEnemies();
+            DeleteAllBullets();
+            DeleteAllItems();
+            map_num++;
+        }
     }
     CheckCollisions();
     if (g_player.dx < 0) g_player.face = "left";
@@ -415,6 +460,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         else if (map_num == 1) {
             DrawDesertBg(mDC);
             DrawDesertTile(mDC);
+        }
+        else if (map_num == 2) {
+
         }
         DrawEnemies(mDC);
         DrawBullets(mDC);
@@ -824,6 +872,9 @@ void DrawItem(HDC hDC) {
     }
 }
 
+void DeleteAllItems() {
+    g_items.clear();
+}
 // Àû
 void InitEnemy(int map[MAP_HEIGHT][MAP_WIDTH]) {
     for (int y = 0; y < MAP_HEIGHT; y++) {
