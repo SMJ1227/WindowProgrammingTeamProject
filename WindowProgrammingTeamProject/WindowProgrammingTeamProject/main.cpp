@@ -15,7 +15,7 @@ const int BOARD_WIDTH = MAP_WIDTH * GRID;
 const int BOARD_HEIGHT = MAP_HEIGHT * GRID;
 const int PLAYER_SIZE = 20;
 const double M_PI = 3.141592;
-const int GRAVITY = 1; // Áß·Â »ó¼ö
+const int GRAVITY = 1; // ì¤‘ë ¥ ìƒìˆ˜
 
 int map_num = 0;
 int tile_num = 0;
@@ -53,8 +53,8 @@ int map0[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
 int tile0[MAP_HEIGHT][MAP_WIDTH] = {
-    {1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3},
-    {4, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 6},
+    {1, 2, 2, 2, 2, 18, 18, 2, 2, 2, 2, 3},
+    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
     {4, 0, 0, 0, 0, 14, 15, 16, 0, 0, 0, 6},
     {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
     {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
@@ -88,17 +88,17 @@ int tile0[MAP_HEIGHT][MAP_WIDTH] = {
 int map1[MAP_HEIGHT][MAP_WIDTH] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 0},
-    {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 6, 6, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 0, 0, 2, 1, 1, 1, 1, 3, 0, 0, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 0},
     {4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-    {0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
     {0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0},
@@ -226,7 +226,7 @@ HINSTANCE g_hInst;
 LPCTSTR lpszClass = L"Window Class Name";
 LPCTSTR lpszWindowName = L"JumpKing";
 
-// Àü¿ª º¯¼ö
+// ì „ì—­ ë³€ìˆ˜
 struct Player {
     int x, y;
     int dx, dy;
@@ -234,7 +234,7 @@ struct Player {
     bool isCharging;
     bool isJumping;
     bool isSliding;
-    bool slip; // ¹Ì²ô·¯Áö´Â µ¿¾È °è¼Ó true
+    bool slip; // ë¯¸ë„ëŸ¬ì§€ëŠ” ë™ì•ˆ ê³„ì† true
     bool damaged;
     string face;// face: left, right  
     bool EnhancedJumpPower;
@@ -292,7 +292,7 @@ void CheckEnemyPlayerCollisions();
 void CheckItemPlayerCollisions();
 void CheckPlayerBulletCollisions();
 
-// WinMain ÇÔ¼ö
+// WinMain í•¨ìˆ˜
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow) {
     srand((unsigned int)time(NULL));
     HWND hWnd;
@@ -323,9 +323,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
             if (Message.message == WM_QUIT)
                 break;
         }
-        // #1 ¸¶¿ì½º °ü·ÃµÈ ¸Ş¼¼Áö¸¦ ¹«½ÃÇÏ´Â Ã¹¹øÂ° ¹æ¹ı
+        // #1 ë§ˆìš°ìŠ¤ ê´€ë ¨ëœ ë©”ì„¸ì§€ë¥¼ ë¬´ì‹œí•˜ëŠ” ì²«ë²ˆì§¸ ë°©ë²•
         //if (Message.message == WM_MOUSEMOVE || Message.message == WM_LBUTTONDOWN || Message.message == WM_RBUTTONDOWN) {
-        //    // ¸¶¿ì½º ¸Ş½ÃÁö ¹«½Ã
+        //    // ë§ˆìš°ìŠ¤ ë©”ì‹œì§€ ë¬´ì‹œ
         //    continue;
         //}
         TranslateMessage(&Message);
@@ -334,7 +334,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     return Message.wParam;
 }
 
-//--- CImage °ü·Ã º¯¼ö ¼±¾ğ
+//--- CImage ê´€ë ¨ ë³€ìˆ˜ ì„ ì–¸
 CImage Snowtile;
 CImage Snowbg;
 CImage Desertbg;
@@ -356,7 +356,7 @@ static int spriteY = 0;
 static int spriteWidth = 30;
 static int spriteHeight = 0;
 
-// Å¸ÀÌ¸Ó Äİ¹é
+// íƒ€ì´ë¨¸ ì½œë°±
 void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
     if (idEvent == 2) {
@@ -396,7 +396,6 @@ void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
         InitEnemy(map);
         InitItems(map);
         if (map_num++ == 4) KillTimer(hWnd, 1);
-
     }
 
     CheckCollisions();
@@ -449,7 +448,7 @@ void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
     InvalidateRect(hWnd, NULL, FALSE);
 }
 
-//¸ŞÀÎ ÇÔ¼ö
+//ë©”ì¸ í•¨ìˆ˜
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     PAINTSTRUCT ps;
@@ -461,7 +460,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     static int playerFrameIndex = 0;
 
     switch (message) {
-    case WM_CREATE:     
+    case WM_CREATE:
         Snowtile.Load(L"snowtile.png");
         Snowbg.Load(L"SnowBg.png");
         cannon.Load(L"Cannon.png");
@@ -496,7 +495,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         hBitmap = CreateCompatibleBitmap(hDC, BOARD_WIDTH, BOARD_HEIGHT);
         SelectObject(mDC, (HBITMAP)hBitmap);
 
-        //--- ¸ğµç ±×¸®±â¸¦ ¸Ş¸ğ¸® DC¿¡ÇÑ´Ù.  ---> ¹Ù²Û ºÎºĞ: CImage º¯¼ö´Â Àü¿ªº¯¼ö·Î ¼±¾ğÇÏ¿© ÇÔ¼öÀÇ ÀÎÀÚ·Î º¸³»Áö ¾Êµµ·Ï ÇÑ´Ù.
+        //--- ëª¨ë“  ê·¸ë¦¬ê¸°ë¥¼ ë©”ëª¨ë¦¬ DCì—í•œë‹¤.  ---> ë°”ê¾¼ ë¶€ë¶„: CImage ë³€ìˆ˜ëŠ” ì „ì—­ë³€ìˆ˜ë¡œ ì„ ì–¸í•˜ì—¬ í•¨ìˆ˜ì˜ ì¸ìë¡œ ë³´ë‚´ì§€ ì•Šë„ë¡ í•œë‹¤.
         if (map_num == 0)startImage.Draw(mDC, 0, 0, GRID * 12, GRID * 15);
         else if (map_num == 1) {
             DrawSnowBg(mDC);
@@ -525,12 +524,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         else if (map_num == 4) {
            endImage.Draw(mDC, BOARD_WIDTH -GRID*13, BOARD_HEIGHT - GRID* 17, GRID * 12, GRID * 15);
         }
-        
-
-        // ¸Ş¸ğ¸® DC¿¡¼­ È­¸é DC·Î ±×¸²À» º¹»ç
-        // #1 ¸Ê ÀüÃ¼¸¦ ±×¸®±â
+       
+        // ë©”ëª¨ë¦¬ DCì—ì„œ í™”ë©´ DCë¡œ ê·¸ë¦¼ì„ ë³µì‚¬
+        // #1 ë§µ ì „ì²´ë¥¼ ê·¸ë¦¬ê¸°
         // BitBlt(hDC, 0, 0, BOARD_WIDTH, BOARD_HEIGHT, mDC, 0, 0, SRCCOPY);
-        // #2 ÇÃ·¹ÀÌ¾î ÁÖº¯ÀÇ ¿µ¿ªÀ» À©µµ¿ì ÀüÃ¼·Î È®´ë
+        // #2 í”Œë ˆì´ì–´ ì£¼ë³€ì˜ ì˜ì—­ì„ ìœˆë„ìš° ì „ì²´ë¡œ í™•ëŒ€
         int stretchWidth = rt.right;
         int stretchHeight = rt.bottom;
         int sourceWidth = WINDOW_WIDTH;
@@ -564,6 +562,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         DeleteObject(spriteSheet);
         DeleteObject(spriteSheetMask);
         KillTimer(hWnd, 1);
+        //KillTimer(hWnd, 2);
         PostQuitMessage(0);
         break;
     default:
@@ -572,20 +571,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     return 0;
 }
 
-// Å°ÀÔ·Â
+// í‚¤ì…ë ¥
 bool spaceKeyReleased = true;
 void ProcessKeyboard() {
-    // Å° Ã³¸®
-    if (GetAsyncKeyState(VK_LEFT) & 0x8000) { // Å°°¡ ´­¸° »óÅÂ
+    // í‚¤ ì²˜ë¦¬
+    if (GetAsyncKeyState(VK_LEFT) & 0x8000) { // í‚¤ê°€ ëˆŒë¦° ìƒíƒœ
         if (!g_player.isCharging && !g_player.isSliding) {
             if (g_player.damaged) { return; }
             g_player.face = "left";
-            if (g_player.dx >= -3) {
+            if (g_player.dx >= -3) { 
                 g_player.dx += -1;
             }
         }
     }
-    else if (GetAsyncKeyState(VK_RIGHT) & 0x8000) { // ¿À¸¥ÂÊ Å° Ã³¸®
+    else if (GetAsyncKeyState(VK_RIGHT) & 0x8000) { // ì˜¤ë¥¸ìª½ í‚¤ ì²˜ë¦¬
         if (!g_player.isCharging && !g_player.isSliding) {
             if (g_player.damaged) { return; }
             g_player.face = "right";
@@ -597,16 +596,16 @@ void ProcessKeyboard() {
     else {
         if (!g_player.damaged && !g_player.isSliding) {
             if (g_player.dx > 0) {
-                g_player.dx -= 1; // ¿ŞÂÊ, ¿À¸¥ÂÊ Å°°¡ ¸ğµÎ ´­¸®Áö ¾ÊÀº »óÅÂ 
+                g_player.dx -= 1; // ì™¼ìª½, ì˜¤ë¥¸ìª½ í‚¤ê°€ ëª¨ë‘ ëˆŒë¦¬ì§€ ì•Šì€ ìƒíƒœ 
             }
             else if (g_player.dx < 0) {
-                g_player.dx += 1; // ¿ŞÂÊ, ¿À¸¥ÂÊ Å°°¡ ¸ğµÎ ´­¸®Áö ¾ÊÀº »óÅÂ 
+                g_player.dx += 1; // ì™¼ìª½, ì˜¤ë¥¸ìª½ í‚¤ê°€ ëª¨ë‘ ëˆŒë¦¬ì§€ ì•Šì€ ìƒíƒœ 
             }
         }
     }
 
-    // ½ºÆäÀÌ½º Å° Ã³¸®
-    if (GetAsyncKeyState(VK_SPACE) & 0x8000) { // ½ºÆäÀÌ½º Å°°¡ ´­¸° »óÅÂ
+    // ìŠ¤í˜ì´ìŠ¤ í‚¤ ì²˜ë¦¬
+    if (GetAsyncKeyState(VK_SPACE) & 0x8000) { // ìŠ¤í˜ì´ìŠ¤ í‚¤ê°€ ëˆŒë¦° ìƒíƒœ
         spaceKeyReleased = false;
         if (!g_player.isJumping && g_player.jumpSpeed > -20) {
             if (g_player.damaged) { g_player.damaged = false; }
@@ -618,7 +617,7 @@ void ProcessKeyboard() {
             }
         }
     }
-    else { // ½ºÆäÀÌ½º Å°°¡ ´­¸®Áö ¾ÊÀº »óÅÂ
+    else { // ìŠ¤í˜ì´ìŠ¤ í‚¤ê°€ ëˆŒë¦¬ì§€ ì•Šì€ ìƒíƒœ
         if (!spaceKeyReleased && g_player.isCharging) {
             g_player.dy = g_player.jumpSpeed;
             g_player.jumpSpeed = 0;
@@ -632,9 +631,9 @@ void ProcessKeyboard() {
     }
 }
 
-// ¸Ê
+// ë§µ
 void DrawSnowTile(HDC hDC) {
-    // Ä­´ç 96x96
+    // ì¹¸ë‹¹ 96x96
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
             int tileType = tile0[y][x];
@@ -698,7 +697,7 @@ void DrawSnowTile(HDC hDC) {
     }
 }
 void DrawDesertTile(HDC hDC) {
-    // Ä­´ç 32x32
+    // ì¹¸ë‹¹ 32x32
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
             int tileType = tile1[y][x];
@@ -757,7 +756,7 @@ void DrawForestBg(HDC hDC) {
 }
 
 void DrawForestTile(HDC hDC) {
-    // Ä­´ç 64x64
+    // ì¹¸ë‹¹ 64x64
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
             int tileType = tile2[y][x];
@@ -791,7 +790,7 @@ void InitMap(int dst[MAP_HEIGHT][MAP_WIDTH], int src[MAP_HEIGHT][MAP_WIDTH]) {
         }
     }
 }
-// ÇÃ·¹ÀÌ¾î
+// í”Œë ˆì´ì–´
 void InitPlayer() {
     g_player.x = (MAP_WIDTH - 7) * GRID;
     g_player.y = (MAP_HEIGHT - 4) * GRID;
@@ -813,7 +812,7 @@ void MovePlayer(int map[MAP_HEIGHT][MAP_WIDTH]) {
     bool isSlopeGoRightCollision = IsSlopeGoRightColliding(map, g_player.x, g_player.y);
     bool isSlopeGoLeftCollision = IsSlopeGoLeftColliding(map, g_player.x, g_player.y);
 
-    // ¼öÁ÷ Ãæµ¹ Ã³¸®
+    // ìˆ˜ì§ ì¶©ëŒ ì²˜ë¦¬
     if (!isVerticalCollision) {
         g_player.y = newY;
         if (!g_player.EnhancedJumpPower) {
@@ -821,30 +820,30 @@ void MovePlayer(int map[MAP_HEIGHT][MAP_WIDTH]) {
         }
     }
     else {
-        // ¹Ù´Ú Ãæµ¹ ½Ã yÃà À§Ä¡ º¸Á¤
+        // ë°”ë‹¥ ì¶©ëŒ ì‹œ yì¶• ìœ„ì¹˜ ë³´ì •
         if (g_player.dy > 0) {
             while (!IsColliding(map, g_player.x, g_player.y + 1)) {
                 g_player.y += 1;
             }
         }
-        g_player.dy = 0; // Ãæµ¹ ÈÄ yÃà ¼Óµµ ÃÊ±âÈ­
+        g_player.dy = 0; // ì¶©ëŒ í›„ yì¶• ì†ë„ ì´ˆê¸°í™”
         g_player.isJumping = false;
         g_player.isSliding = false;
     }
 
-    // ¼öÆò Ãæµ¹ Ã³¸®
+    // ìˆ˜í‰ ì¶©ëŒ ì²˜ë¦¬
     if (!isHorizontalCollision) {
         g_player.x = newX;
     }
     else {
-        g_player.dx = 0; // Ãæµ¹ ÈÄ xÃà ¼Óµµ ÃÊ±âÈ­
+        g_player.dx = 0; // ì¶©ëŒ í›„ xì¶• ì†ë„ ì´ˆê¸°í™”
     }
 
     if (isSlopeGoRightCollision) {
         g_player.isSliding = true;
 
-        g_player.dy = 1; // °æ»ç¸é À§¿¡¼­ ¹Ì²ô·¯Áü ¼Óµµ
-        g_player.dx = 3; // ¿À¸¥ÂÊ ¾Æ·¡·Î ¹Ì²ô·¯Áü
+        g_player.dy = 1; // ê²½ì‚¬ë©´ ìœ„ì—ì„œ ë¯¸ë„ëŸ¬ì§ ì†ë„
+        g_player.dx = 3; // ì˜¤ë¥¸ìª½ ì•„ë˜ë¡œ ë¯¸ë„ëŸ¬ì§
         newX = g_player.x + g_player.dx;
         newY = g_player.y + g_player.dy;
         g_player.x = newX;
@@ -854,8 +853,8 @@ void MovePlayer(int map[MAP_HEIGHT][MAP_WIDTH]) {
     if (isSlopeGoLeftCollision) {
         g_player.isSliding = true;
 
-        g_player.dy = 1; // °æ»ç¸é À§¿¡¼­ ¹Ì²ô·¯Áü ¼Óµµ
-        g_player.dx = -3; // ¿À¸¥ÂÊ ¾Æ·¡·Î ¹Ì²ô·¯Áü
+        g_player.dy = 1; // ê²½ì‚¬ë©´ ìœ„ì—ì„œ ë¯¸ë„ëŸ¬ì§ ì†ë„
+        g_player.dx = -3; // ì˜¤ë¥¸ìª½ ì•„ë˜ë¡œ ë¯¸ë„ëŸ¬ì§
         newX = g_player.x + g_player.dx;
         newY = g_player.y + g_player.dy;
         g_player.x = newX;
@@ -883,7 +882,7 @@ void DrawSprite(HDC hDC, const int& x, const int& y, const int& width, const int
 
 void ApplyGravity() {
     if (g_player.dy < 20) {
-        g_player.dy += GRAVITY; // Áß·Â Àû¿ë
+        g_player.dy += GRAVITY; // ì¤‘ë ¥ ì ìš©
     }
 }
 
@@ -907,7 +906,7 @@ bool IsSlopeGoRightColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y) {
     int topY = (y - PLAYER_SIZE / 2) / GRID;
     int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
 
-    // Ãæµ¹ °¨Áö
+    // ì¶©ëŒ ê°ì§€
     if (map[bottomY][leftX] == 2 || map[bottomY][rightX] == 2) {
         return true;
     }
@@ -920,7 +919,7 @@ bool IsSlopeGoLeftColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y) {
     int topY = (y - PLAYER_SIZE / 2) / GRID;
     int bottomY = (y + PLAYER_SIZE / 2 - 1) / GRID;
 
-    // Ãæµ¹ °¨Áö
+    // ì¶©ëŒ ê°ì§€
     if (map[bottomY][leftX] == 3 || map[bottomY][rightX] == 3) {
         return true;
     }
@@ -939,7 +938,7 @@ bool IsNextColliding(int map[MAP_HEIGHT][MAP_WIDTH], int x, int y) {
     return false;
 }
 
-// ¾ÆÀÌÅÛ
+// ì•„ì´í…œ
 void InitItems(int map[MAP_HEIGHT][MAP_WIDTH]) {
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
@@ -967,13 +966,13 @@ void DrawItem(HDC hDC) {
 }
 
 void DeleteAllItems() {
-	g_items.clear();
+    g_items.clear();
 }
-// Àû
+// ì 
 void InitEnemy(int map[MAP_HEIGHT][MAP_WIDTH]) {
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
-            if (map[y][x] == 4) {  // Àû
+            if (map[y][x] == 4) {  // ì 
                 GenerateEnemy(x, y);
             }
         }
@@ -1000,7 +999,7 @@ void DeleteAllEnemies() {
 void ShootBullet() {
     for (const auto& enemy : g_enemies) {
         Bullet newBullet;
-        newBullet.x = (enemy.x + 1) * GRID; // ÀûÀÇ À§Ä¡¿¡¼­ ÃÑ¾ËÀÌ ³ª°¡µµ·Ï ¼³Á¤
+        newBullet.x = (enemy.x + 1) * GRID; // ì ì˜ ìœ„ì¹˜ì—ì„œ ì´ì•Œì´ ë‚˜ê°€ë„ë¡ ì„¤ì •
         newBullet.y = enemy.y * GRID + GRID / 2;
         newBullet.dx = 2;
         newBullet.dy = 0;
@@ -1036,7 +1035,7 @@ void DeleteAllBullets() {
     g_bullets.clear();
 }
 
-// Ãæµ¹ È®ÀÎ ÇÔ¼ö
+// ì¶©ëŒ í™•ì¸ í•¨ìˆ˜
 void CheckCollisions() {
     CheckItemPlayerCollisions();
     CheckPlayerBulletCollisions();
@@ -1050,10 +1049,10 @@ void CheckEnemyPlayerCollisions() {
             g_player.dx = 4;
             g_player.isCharging = false;
             g_player.jumpSpeed = 0;
-            ++it; // Ãæµ¹ ½Ã ¹İº¹ÀÚ¸¦ Áõ°¡½ÃÅµ´Ï´Ù.
+            ++it; // ì¶©ëŒ ì‹œ ë°˜ë³µìë¥¼ ì¦ê°€ì‹œí‚µë‹ˆë‹¤.
         }
         else {
-            ++it; // Ãæµ¹ÀÌ ¹ß»ıÇÏÁö ¾Ê¾ÒÀ» ¶§µµ ¹İº¹ÀÚ¸¦ Áõ°¡½ÃÅµ´Ï´Ù.
+            ++it; // ì¶©ëŒì´ ë°œìƒí•˜ì§€ ì•Šì•˜ì„ ë•Œë„ ë°˜ë³µìë¥¼ ì¦ê°€ì‹œí‚µë‹ˆë‹¤.
         }
     }
 }
@@ -1077,12 +1076,12 @@ void CheckPlayerBulletCollisions() {
     for (auto it = g_bullets.begin(); it != g_bullets.end(); ) {
         if (it->x >= g_player.x - PLAYER_SIZE && it->x <= g_player.x + PLAYER_SIZE &&
             it->y >= g_player.y - PLAYER_SIZE && it->y <= g_player.y + PLAYER_SIZE) {
-            // ÇÃ·¹ÀÌ¾î¸¦ µÚ·Î ¹ĞÄ§
+            // í”Œë ˆì´ì–´ë¥¼ ë’¤ë¡œ ë°€ì¹¨
             g_player.dx = it->dx * 2;
             g_player.isCharging = false;
             g_player.jumpSpeed = 0;
             g_player.damaged = true;
-            // ÇÃ·¹ÀÌ¾î¿Í Ãæµ¹ ½Ã Á¦°Å
+            // í”Œë ˆì´ì–´ì™€ ì¶©ëŒ ì‹œ ì œê±°
             it = g_bullets.erase(it);
         }
         else {
